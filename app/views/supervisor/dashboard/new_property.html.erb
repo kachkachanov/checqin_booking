@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checqin — Супервайзор / Новое жильё</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+tailwind.config={theme:{extend:{
+  colors:{tl:'#1db896',tl2:'#15a07f',bg:'#050f0c',bg2:'#091410',bg3:'#0d1c18',bg4:'#122720',tx:'#e8f5f1',tx2:'#9bbdb5',tx3:'#5a8078'},
+  fontFamily:{serif:['"DM Serif Display"','serif'],sans:['"Plus Jakarta Sans"','sans-serif']},
+}}}
+</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',sans-serif}
+#aurora{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.42}
+.glass{background:rgba(13,28,24,.88);backdrop-filter:blur(22px);border:1px solid rgba(29,184,150,.18)}
+.glass-hdr{background:rgba(5,15,12,.86);backdrop-filter:blur(20px);border-bottom:1px solid rgba(29,184,150,.14)}
+.fi{width:100%;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.12);border-radius:16px;color:#e8f5f1;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:500;padding:18px 18px 14px;outline:none;transition:all .22s}
+.fi:focus{border-color:#1db896;background:rgba(29,184,150,.06);box-shadow:0 0 0 3px rgba(29,184,150,.13)}
+.fi::placeholder{color:#5a8078;font-weight:400}
+.fi.err{border-color:#f24f6b!important;background:rgba(242,79,107,.07)!important;box-shadow:0 0 0 3px rgba(242,79,107,.13)!important}
+.fi-label{display:block;font-size:11px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:#9bbdb5;margin-bottom:6px}
+.fi-sel{width:100%;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.12);border-radius:16px;color:#e8f5f1;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:500;padding:18px 44px 14px 18px;outline:none;transition:all .22s;appearance:none;cursor:pointer}
+.fi-sel:focus{border-color:#1db896;background:rgba(29,184,150,.06);box-shadow:0 0 0 3px rgba(29,184,150,.13)}
+.fi-sel option{background:#0d1c18;color:#e8f5f1}
+.cnt-row{display:flex;align-items:center;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.12);border-radius:16px;overflow:hidden}
+.cnt-btn{width:52px;padding:16px 0;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:300;color:#1db896;cursor:pointer;transition:all .2s;border:none;background:transparent}
+.cnt-btn:hover{background:rgba(29,184,150,.12)}
+.cnt-val{flex:1;text-align:center;font-size:17px;font-weight:800;color:#e8f5f1;padding:16px 0}
+.upload-z{border:2px dashed rgba(29,184,150,.28);border-radius:16px;background:rgba(29,184,150,.04);padding:30px 20px;text-align:center;cursor:pointer;transition:all .25s}
+.upload-z:hover{border-color:rgba(29,184,150,.55);background:rgba(29,184,150,.08)}
+</style>
+</head>
+<body class="bg-bg text-tx">
+<canvas id="aurora"></canvas>
+
+<div class="relative z-10 flex flex-col min-h-screen">
+  <header class="glass-hdr sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6 lg:px-10 py-3.5">
+    <a href="<%= supervisor_root_path %>" class="flex items-center gap-2 text-tx2 hover:text-tl transition-colors text-sm font-semibold"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>Мои объекты</a>
+    <div class="text-xs text-tx3 hidden sm:block">Жильё целиком</div>
+    <div class="flex items-center gap-2.5 bg-white/[.04] border border-white/10 rounded-full pl-1 pr-3 py-1"><div class="w-7 h-7 rounded-full bg-tl/20 border border-tl/30 flex items-center justify-center text-tl text-xs font-bold"><%= current_user.email[0].upcase %></div><span class="text-sm font-semibold text-tx2 hidden sm:block"><%= current_user.email.split('@').first %></span></div>
+  </header>
+  <main class="flex-1 px-4 sm:px-6 lg:px-14 py-10 max-w-[860px] mx-auto w-full">
+    <h1 class="font-serif text-tx mb-8" style="font-size:clamp(28px,4vw,48px)">Об объекте</h1>
+
+    <%= form_with model: @property, url: supervisor_create_property_path, local: true, multipart: true, class: "flex flex-col gap-5" do |f| %>
+      <div>
+        <%= f.label :name, class: "fi-label" do %>Название <span class="text-red-400">*</span><% end %>
+        <%= f.text_field :name, placeholder: "Например, Уютная студия в центре города", class: "fi", maxlength: 80 %>
+      </div>
+
+      <div>
+        <%= f.label :property_type, class: "fi-label" do %>Тип <span class="text-red-400">*</span><% end %>
+        <div class="fi-wrap relative">
+          <%= f.select :property_type, options_for_select(['Квартира', 'Апартаменты', 'Студия', 'Комната', 'Дом / коттедж', 'Таунхаус', 'Вилла', 'Другое']), { prompt: 'Например, квартира' }, class: "fi-sel" %>
+          <div class="absolute right-4 top-1/2 -translate-y-1/2 text-tx3 pointer-events-none"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <%= f.label :rooms_count, class: "fi-label" %>Количество комнат
+          <div class="cnt-row">
+            <button type="button" class="cnt-btn" onclick="adjC('rooms_count', -1, 0)">−</button>
+            <div class="cnt-val" id="rooms_count_val">0</div>
+            <%= f.number_field :rooms_count, id: "rooms_count_input", value: 0, class: "hidden" %>
+            <button type="button" class="cnt-btn" onclick="adjC('rooms_count', 1, 0)">+</button>
+          </div>
+          <p class="text-xs text-tx3 mt-1.5">Укажите 0, если у вас студия</p>
+        </div>
+        <div>
+          <%= f.label :area, class: "fi-label" do %>Площадь объекта, м² <span class="text-red-400">*</span><% end %>
+          <%= f.number_field :area, step: 0.5, min: 1, placeholder: "20", class: "fi" %>
+        </div>
+      </div>
+
+      <div>
+        <%= f.label :city, class: "fi-label" do %>Город <span class="text-red-400">*</span><% end %>
+        <%= f.text_field :city, placeholder: "Например, Москва", class: "fi" %>
+        <p class="text-xs text-tx3 mt-1.5">Только буквы, без цифр</p>
+      </div>
+
+      <div>
+        <%= f.label :address, class: "fi-label" do %>Адрес <span class="text-red-400">*</span><% end %>
+        <%= f.text_field :address, placeholder: "Точный адрес, чтобы гости не потерялись", class: "fi" %>
+      </div>
+
+      <div>
+        <%= f.label :guests_capacity, class: "fi-label" %>Количество гостей
+        <div class="cnt-row" style="max-width:200px">
+          <button type="button" class="cnt-btn" onclick="adjC('guests_capacity', -1, 1)">−</button>
+          <div class="cnt-val" id="guests_capacity_val">1</div>
+          <%= f.number_field :guests_capacity, id: "guests_capacity_input", value: 1, class: "hidden" %>
+          <button type="button" class="cnt-btn" onclick="adjC('guests_capacity', 1, 1)">+</button>
+        </div>
+      </div>
+
+      <div>
+        <%= f.label :description, class: "fi-label" %>Описание
+        <%= f.text_area :description, rows: 4, placeholder: "Расскажите о жилье...", class: "fi" %>
+      </div>
+
+      <div>
+        <%= f.label :photos, class: "fi-label" do %>Фотографии объекта <span class="text-red-400">*</span><% end %>
+        <div class="upload-z" onclick="document.getElementById('property_photos').click()">
+          <div class="w-12 h-12 rounded-[14px] bg-tl/10 border border-tl/20 flex items-center justify-center text-tl mx-auto mb-3"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
+          <p class="text-sm font-semibold text-tx mb-1">Нажмите для загрузки</p>
+          <p class="text-xs text-tx3">JPG, PNG &middot; <span class="text-tl font-semibold">Минимум 3 фото</span></p>
+        </div>
+        <%= f.file_field :photos, multiple: true, class: "hidden", id: "property_photos", onchange: "handlePhotos(this)" %>
+        <div id="photo-preview" class="flex flex-wrap gap-2 mt-3"></div>
+        <div id="photo-count" class="text-xs text-tx3 mt-1.5"></div>
+      </div>
+
+      <div id="form-err" class="hidden px-4 py-3 rounded-[13px] text-sm font-medium flex items-center gap-2" style="background:rgba(242,79,107,.1);border:1px solid rgba(242,79,107,.25);color:#f87171">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <span id="form-err-t"></span>
+      </div>
+
+      <%= f.submit "Зарегистрировать объект", class: "w-full sm:w-auto sm:self-start py-4 px-8 rounded-[16px] border-none text-bg font-extrabold text-sm cursor-pointer flex items-center justify-center gap-2 transition-all", style: "background:linear-gradient(135deg,#1db896,#15a07f);box-shadow:0 8px 28px rgba(29,184,150,.35)" %>
+    <% end %>
+  </main>
+</div>
+
+<script>
+(function(){
+  const c=document.getElementById('aurora'),ctx=c.getContext('2d');let W,H,t=0;
+  const orbs=[{x:.15,y:.25,r:.4,col:'rgba(29,184,150,.14)',sp:.0003},{x:.85,y:.2,r:.35,col:'rgba(29,184,150,.1)',sp:.0005},{x:.4,y:.8,r:.38,col:'rgba(13,122,96,.11)',sp:.0002},{x:.9,y:.65,r:.3,col:'rgba(29,184,150,.09)',sp:.0006}];
+  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight}resize();window.addEventListener('resize',resize);
+  function draw(){ctx.clearRect(0,0,W,H);orbs.forEach(o=>{const ox=W*(o.x+.07*Math.sin(t*o.sp*3)),oy=H*(o.y+.05*Math.cos(t*o.sp*2)),r=Math.min(W,H)*o.r,g=ctx.createRadialGradient(ox,oy,0,ox,oy,r);g.addColorStop(0,o.col);g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(ox,oy,r,0,Math.PI*2);ctx.fill()});t++;requestAnimationFrame(draw)}draw();})();
+
+function adjC(field, delta, minVal){
+  const valEl = document.getElementById(`${field}_val`);
+  const input = document.getElementById(`${field}_input`);
+  let current = parseInt(valEl.textContent) || minVal;
+  let newVal = current + delta;
+  if(newVal < minVal) newVal = minVal;
+  if(newVal > 20) newVal = 20;
+  valEl.textContent = newVal;
+  if(input) input.value = newVal;
+}
+
+function handlePhotos(input){
+  const files = input.files;
+  const preview = document.getElementById('photo-preview');
+  const count = document.getElementById('photo-count');
+  preview.innerHTML = '';
+  count.textContent = files.length ? `Загружено: ${files.length} фото` : '';
+  Array.from(files).slice(0,8).forEach(f => {
+    const url = URL.createObjectURL(f);
+    const div = document.createElement('div');
+    div.style.cssText = 'width:70px;height:70px;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.1);flex-shrink:0';
+    div.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover">`;
+    preview.appendChild(div);
+  });
+}
+</script>
+</body>
+</html>

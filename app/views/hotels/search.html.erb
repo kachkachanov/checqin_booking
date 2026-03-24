@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checqin — Поиск отелей</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        tl:'#1db896',tl2:'#15a07f',tl3:'#0d7a60',
+        bg:'#050f0c',bg2:'#091410',bg3:'#0d1c18',bg4:'#122720',
+        tx:'#e8f5f1',tx2:'#9bbdb5',tx3:'#5a8078',
+      },
+      fontFamily: {
+        serif:['"DM Serif Display"','serif'],
+        sans:['"Plus Jakarta Sans"','sans-serif'],
+      },
+    }
+  }
+}
+</script>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
+#aurora{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5}
+.glass-hdr{background:rgba(5,15,12,.82);backdrop-filter:blur(20px);border-bottom:1px solid rgba(29,184,150,.15)}
+.ft{flex-shrink:0;padding:8px 18px;border-radius:20px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);font-size:clamp(11px,1.3vw,13px);font-weight:600;color:#9bbdb5;cursor:pointer;white-space:nowrap;transition:all .2s}
+.ft.on{background:#1db896;border-color:#1db896;color:#050f0c}
+.hcard-wrap:hover .hcard-photo{transform:scale(1.05)}
+.hcard-photo{transition:transform .4s;width:100%;height:100%;object-fit:cover;display:block}
+@media(min-width:1280px){.hotels-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}}
+@media(min-width:768px) and (max-width:1023px){.hotels-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}}
+@media(max-width:767px){.hotels-grid{display:flex;flex-direction:column;gap:16px}}
+</style>
+</head>
+<body class="bg-bg min-h-screen text-tx overflow-x-hidden">
+<canvas id="aurora"></canvas>
+
+<div class="relative z-10 flex flex-col min-h-screen">
+
+  <!-- HEADER -->
+  <header class="glass-hdr sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 lg:py-4">
+    <div class="flex items-center gap-2 cursor-pointer flex-shrink-0" onclick="window.location.href='/'">
+      <svg width="110" height="30" viewBox="0 0 240 60" fill="none">
+        <path d="M44 10 C24 10 8 21 8 35 C8 49 24 56 44 56" stroke="#1db896" stroke-width="7" stroke-linecap="round" fill="none"/>
+        <ellipse cx="9" cy="35" rx="7" ry="9" fill="#1db896"/>
+        <path d="M9 44 L6 53 L9 49 L12 53 Z" fill="#1db896"/>
+        <circle cx="9" cy="33" r="3" fill="#050f0c"/>
+        <rect x="8" y="35.5" width="2" height="4" rx="1" fill="#050f0c"/>
+        <path d="M56 12 L56 48 M56 30 Q63 21 73 30 L73 48" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M82 36 Q82 24 93 24 Q103 24 103 33 L82 33 M82 36 Q82 48 93 48" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+        <path d="M130 28 Q120 20 111 33 Q102 46 114 47 Q122 47 130 40" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+        <path d="M150 24 Q137 24 137 35 Q137 47 150 47 Q163 47 163 35 Q163 28 158 25 M161 44 L170 54" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+        <circle cx="178" cy="18" r="4" fill="#1db896"/>
+        <line x1="178" y1="27" x2="178" y2="48" stroke="#1db896" stroke-width="5.5" stroke-linecap="round"/>
+        <path d="M188 48 L188 27 Q188 27 198 38 Q208 48 208 48 L208 27" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+    </div>
+    <nav class="hidden lg:flex items-center gap-6 text-sm font-semibold text-tx2">
+      <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/'">Главная</span>
+      <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/search'">Все отели</span>
+      <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/favorites'">Избранное</span>
+      <% if user_signed_in? %>
+        <% if current_user.supervisor? %>
+          <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/supervisor'">Супервайзор</span>
+        <% end %>
+        <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/users/sign_out'">Выйти</span>
+      <% else %>
+        <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/users/sign_in'">Войти</span>
+      <% end %>
+    </nav>
+    <div class="flex items-center gap-2">
+      <button onclick="window.location.href='/favorites'" title="Избранное" class="w-9 h-9 lg:w-10 lg:h-10 rounded-xl border border-white/10 bg-white/[.04] flex items-center justify-center text-tx2 cursor-pointer transition-all hover:border-tl hover:text-tl hover:bg-tl/10">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Top bar -->
+  <div class="glass-hdr sticky top-0 z-10 flex items-center gap-3 px-4 sm:px-6 lg:px-8 py-3 lg:py-4">
+    <button onclick="window.location.href='/'"
+      class="w-9 h-9 rounded-[11px] border border-white/10 bg-white/[.04] text-tx2 flex items-center justify-center flex-shrink-0 transition-all hover:border-tl hover:text-tl">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+    <div class="flex-1 min-w-0">
+      <div class="font-bold text-tx truncate" id="res-city" style="font-size:clamp(14px,1.6vw,18px)"><%= @city || 'Все отели' %></div>
+      <div class="text-tx3 mt-0.5" id="res-info" style="font-size:clamp(10px,1.1vw,12px)">
+        <%= @checkin ? @checkin : '' %> — <%= @checkout ? @checkout : '' %> · <%= @guests %> гост.
+      </div>
+    </div>
+    <!-- Desktop filter inside topbar -->
+    <div class="hidden lg:flex gap-2">
+      <button class="ft on" data-f="all" onclick="setFlt(this,'all')">Все</button>
+      <button class="ft" data-f="hotels" onclick="setFlt(this,'hotels')">Отели</button>
+      <button class="ft" data-f="suites" onclick="setFlt(this,'suites')">Апартаменты</button>
+    </div>
+  </div>
+
+  <!-- Mobile filter bar -->
+  <div class="lg:hidden no-sb flex gap-2 px-4 py-3 overflow-x-auto bg-bg2">
+    <button class="ft on" data-f="all" onclick="setFlt(this,'all')">Все</button>
+    <button class="ft" data-f="hotels" onclick="setFlt(this,'hotels')">Отели</button>
+    <button class="ft" data-f="suites" onclick="setFlt(this,'suites')">Апартаменты</button>
+  </div>
+
+  <!-- Hotels grid -->
+  <div class="px-4 sm:px-6 lg:px-8 xl:px-10 pt-4 pb-10 hotels-grid" id="hotels-list">
+    <% if @hotels.any? %>
+      <% @hotels.each do |hotel| %>
+        <div class="hcard-wrap rounded-[20px] overflow-hidden bg-bg3 border border-white/8 transition-all duration-300 hover:-translate-y-1" style="box-shadow:0 2px 14px rgba(0,0,0,.22)">
+          <div style="position:relative;height:185px;overflow:hidden;background:#122720">
+            <% if hotel.photos.attached? && hotel.photos.first.present? %>
+              <img class="hcard-photo" src="<%= url_for(hotel.photos.first) %>" alt="<%= hotel.name %>" loading="lazy"
+                style="width:100%;height:100%;object-fit:cover;display:block">
+            <% else %>
+              <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:52px;background:linear-gradient(135deg,#122720,#0d1c18)">🏨</div>
+            <% end %>
+            <% if hotel.description.present? %>
+              <div style="position:absolute;top:12px;left:12px;background:rgba(29,184,150,.9);color:#050f0c;font-size:clamp(9px,1vw,11px);font-weight:800;padding:4px 10px;border-radius:8px;backdrop-filter:blur(6px)">⭐ Топ</div>
+            <% end %>
+            <button id="hf-<%= hotel.id %>" onclick="toggleFav(<%= hotel.id %>)"
+              style="position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:50%;border:none;background:rgba(5,15,12,.75);backdrop-filter:blur(8px);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s">
+              <svg style="width:16px;height:16px" fill="none" viewBox="0 0 24 24" stroke="#9bbdb5" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+            </button>
+          </div>
+          <div class="p-4 sm:p-5">
+            <div class="flex items-center justify-between mb-2">
+              <div style="color:#f5c842;font-size:clamp(10px,1.1vw,13px);letter-spacing:1px"><%= "★" * hotel.rating.to_i %><%= "☆" * (5 - hotel.rating.to_i) %></div>
+              <div style="background:#1db896;color:#050f0c;font-weight:800;font-size:clamp(11px,1.1vw,13px);padding:4px 9px;border-radius:8px"><%= hotel.rating || 4.5 %></div>
+            </div>
+            <div class="font-bold text-tx mb-1 leading-snug" style="font-size:clamp(13px,1.4vw,16px)"><%= link_to hotel.name, hotel_path(hotel), style: "color: #e8f5f1; text-decoration: none;" %></div>
+            <div class="flex items-center gap-1.5 text-tx3 mb-3.5" style="font-size:clamp(11px,1.1vw,13px)">
+              <svg style="width:11px;height:11px;color:#1db896;flex-shrink:0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              <%= hotel.city %>, <%= hotel.address %>
+            </div>
+            <div class="flex items-end justify-between">
+              <div>
+                <div class="font-serif text-tx leading-none" style="font-size:clamp(20px,2.2vw,26px)">₽<%= hotel.rooms.minimum(:price_per_night).to_i %></div>
+                <div class="text-tx3 mt-1" style="font-size:clamp(10px,1vw,12px)">за ночь · от 1 гостя</div>
+              </div>
+              <button onclick="window.location.href='/hotels/<%= hotel.id %>'"
+                class="rounded-[12px] border-none text-bg font-extrabold cursor-pointer transition-all hover:-translate-y-0.5"
+                style="padding:clamp(9px,1vw,12px) clamp(14px,1.5vw,20px);background:linear-gradient(135deg,#1db896,#15a07f);box-shadow:0 6px 20px rgba(29,184,150,.3);font-size:clamp(11px,1.2vw,14px)">
+                Подробнее
+              </button>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="glass rounded-[24px] p-10 text-center">
+        <div class="text-4xl mb-4">🔍</div>
+        <p class="text-tx2">По вашему запросу ничего не найдено</p>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+/* ── AURORA ── */
+(function(){
+  const c=document.getElementById('aurora'),ctx=c.getContext('2d');
+  let W,H,t=0;
+  const orbs=[
+    {x:.2,y:.3,r:.38,col:'rgba(29,184,150,.18)',sp:.0003},
+    {x:.8,y:.1,r:.3,col:'rgba(29,184,150,.12)',sp:.0005},
+    {x:.5,y:.75,r:.42,col:'rgba(13,122,96,.13)',sp:.0002},
+    {x:.1,y:.9,r:.25,col:'rgba(29,184,150,.1)',sp:.0006},
+  ];
+  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight}
+  resize();window.addEventListener('resize',resize);
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    orbs.forEach(o=>{
+      const ox=W*(o.x+.08*Math.sin(t*o.sp*3));
+      const oy=H*(o.y+.06*Math.cos(t*o.sp*2));
+      const r=Math.min(W,H)*o.r;
+      const g=ctx.createRadialGradient(ox,oy,0,ox,oy,r);
+      g.addColorStop(0,o.col);g.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=g;ctx.beginPath();ctx.arc(ox,oy,r,0,Math.PI*2);ctx.fill();
+    });
+    t++;requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ── FILTER ── */
+function setFlt(btn,f){
+  document.querySelectorAll('.ft').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.ft[data-f="'+f+'"]').forEach(b=>b.classList.add('on'));
+  // Здесь можно добавить AJAX фильтрацию
+}
+
+/* ── FAVORITES ── */
+function toggleFav(id){
+  fetch('/favorites/toggle/' + id, {
+    method: 'POST',
+    headers: {
+      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+      'Content-Type': 'application/json'
+    }
+  }).then(() => {
+    location.reload();
+  });
+}
+
+// Responsive grid
+function applyHotelsGrid(){
+  const w=window.innerWidth;
+  const el=document.getElementById('hotels-list');
+  if(!el)return;
+  if(w>=1280){el.style.display='grid';el.style.gridTemplateColumns='repeat(3,1fr)';el.style.gap='20px';el.style.flexDirection=''}
+  else if(w>=768){el.style.display='grid';el.style.gridTemplateColumns='repeat(2,1fr)';el.style.gap='16px';el.style.flexDirection=''}
+  else{el.style.display='flex';el.style.flexDirection='column';el.style.gap='16px';}
+}
+window.addEventListener('resize',applyHotelsGrid);
+applyHotelsGrid();
+</script>
+</body>
+</html>

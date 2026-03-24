@@ -1,0 +1,23 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  property_type: MyString
+  city: MyString
+  address: MyString
+  rooms_count: 1
+  area: 9.99
+  guests_capacity: 1
+  description: MyText
+  user: one
+
+two:
+  name: MyString
+  property_type: MyString
+  city: MyString
+  address: MyString
+  rooms_count: 1
+  area: 9.99
+  guests_capacity: 1
+  description: MyText
+  user: two

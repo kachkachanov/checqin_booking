@@ -1,0 +1,82 @@
+# Ruby / Rails
+*.rbc
+*.sqlite3
+*.sqlite3-*
+*.log
+*.tmp
+*.pid
+*.swp
+*.swo
+*.gem
+*.lock
+*.gemfile.lock
+.bundle
+vendor/bundle
+vendor/cache
+Gemfile.lock
+Gemfile.local
+
+# Environment
+.env
+.env.local
+.env.*.local
+config/database.yml
+config/master.key
+config/credentials.yml.enc
+
+# IDE
+.idea/
+.vscode/
+*.sublime-*
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Rails
+log/
+tmp/
+storage/
+public/assets
+public/packs
+public/uploads
+node_modules/
+yarn-error.log
+yarn-debug.log*
+.pnpm-debug.log*
+
+# Uploads
+storage/
+tmp/storage
+
+# Test
+coverage/
+spec/reports/
+test/tmp/
+
+# Spring
+spring/
+spring.log
+
+# Capybara
+tmp/capybara/
+
+# Redis
+dump.rdb
+
+# PostgreSQL
+*.pid
+
+# Docker
+.dockerignore
+Dockerfile
+docker-compose.yml
+
+# Local development
+*.local
+!.gitkeep

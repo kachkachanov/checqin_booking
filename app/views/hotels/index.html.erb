@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checqin — Найди свой отель</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        tl:'#1db896',tl2:'#15a07f',tl3:'#0d7a60',
+        bg:'#050f0c',bg2:'#091410',bg3:'#0d1c18',bg4:'#122720',
+        tx:'#e8f5f1',tx2:'#9bbdb5',tx3:'#5a8078',
+      },
+      fontFamily: {
+        serif:['"DM Serif Display"','serif'],
+        sans:['"Plus Jakarta Sans"','sans-serif'],
+      },
+      keyframes: {
+        pulse2:{'0%,100%':{opacity:'1',transform:'scale(1)'},'50%':{opacity:'.4',transform:'scale(.7)'}},
+        fadeUp:{from:{opacity:'0',transform:'translateY(14px)'},to:{opacity:'1',transform:'translateY(0)'}},
+        drawerIn:{from:{transform:'translateX(100%)'},to:{transform:'translateX(0)'}},
+        sheetUp:{from:{transform:'translateY(60%)',opacity:'0'},to:{transform:'translateY(0)',opacity:'1'}},
+      },
+      animation:{
+        pulse2:'pulse2 2s ease-in-out infinite',
+        fadeUp:'fadeUp .38s ease',
+        drawerIn:'drawerIn .28s cubic-bezier(.32,0,.15,1)',
+        sheetUp:'sheetUp .32s cubic-bezier(.34,1.1,.64,1)',
+      },
+      screens:{
+        xs:'400px',
+      }
+    }
+  }
+}
+</script>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
+
+/* ── aurora ── */
+#aurora{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5}
+
+/* ── pages ── */
+.pg{display:none}
+.pg.on{display:flex;flex-direction:column;flex:1;animation:fadeUp .38s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── no-scroll bars ── */
+.no-sb::-webkit-scrollbar{display:none}
+.no-sb{-ms-overflow-style:none;scrollbar-width:none}
+
+/* ── glass ── */
+.glass{background:rgba(13,28,24,.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(29,184,150,.18)}
+.glass-hdr{background:rgba(5,15,12,.82);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(29,184,150,.15)}
+
+/* ── inputs ── */
+.f-in{
+  width:100%;padding:13px 16px;border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;background:rgba(255,255,255,.04);color:#e8f5f1;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:clamp(13px,1.5vw,15px);
+  font-weight:500;outline:none;transition:all .2s;
+}
+.f-in:focus{border-color:#1db896;background:rgba(255,255,255,.07);box-shadow:0 0 0 3px rgba(29,184,150,.2)}
+.f-in::placeholder{color:#5a8078}
+
+/* ── date buttons ── */
+.d-btn{
+  width:100%;padding:12px 14px;border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;background:rgba(255,255,255,.04);color:#e8f5f1;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:clamp(12px,1.4vw,14px);
+  font-weight:500;cursor:pointer;text-align:left;
+  display:flex;align-items:center;gap:9px;transition:all .2s;outline:none;
+}
+.d-btn:hover,.d-btn:focus{border-color:#1db896;background:rgba(255,255,255,.07)}
+
+/* ── filter pills ── */
+.ft{flex-shrink:0;padding:8px 18px;border-radius:20px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);font-size:clamp(11px,1.3vw,13px);font-weight:600;color:#9bbdb5;cursor:pointer;white-space:nowrap;font-family:inherit;transition:all .2s}
+.ft.on{background:#1db896;border-color:#1db896;color:#050f0c}
+
+/* ── calendar days ── */
+.cd{
+  aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+  font-size:clamp(11px,1.4vw,14px);font-weight:500;border-radius:9px;
+  cursor:pointer;border:none;background:transparent;
+  color:#e8f5f1;font-family:'Plus Jakarta Sans',sans-serif;transition:all .15s;
+}
+.cd:hover:not(.dis):not(.emp){background:rgba(255,255,255,.07);color:#1db896}
+.cd.sel{background:#1db896!important;color:#050f0c!important;font-weight:800;box-shadow:0 4px 14px rgba(29,184,150,.4)}
+.cd.rng{background:rgba(29,184,150,.12);color:#1db896}
+.cd.dis{color:#5a8078;opacity:.35;cursor:not-allowed}
+.cd.emp{cursor:default}
+.cd.td:not(.sel){color:#1db896;font-weight:800}
+
+/* ── hotel card image hover ── */
+.hcard-wrap:hover .hcard-photo{transform:scale(1.05)}
+.hcard-photo{transition:transform .4s;width:100%;height:100%;object-fit:cover;display:block}
+
+/* ── DESKTOP layout helpers ── */
+@media(min-width:1024px){
+  .desktop-2col{display:grid;grid-template-columns:380px 1fr;gap:0;min-height:100vh}
+  .sidebar-panel{position:sticky;top:0;height:100vh;overflow-y:auto;border-right:1px solid rgba(29,184,150,.12)}
+  .hotels-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+}
+@media(min-width:1280px){
+  .hotels-grid{grid-template-columns:repeat(3,1fr)}
+}
+@media(min-width:768px) and (max-width:1023px){
+  .hotels-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+}
+</style>
+</head>
+<body class="bg-bg min-h-screen text-tx overflow-x-hidden">
+<canvas id="aurora"></canvas>
+
+<!-- ══ ROOT ══ -->
+<div class="relative z-10 flex flex-col min-h-screen">
+
+  <!-- ══ HEADER ══ -->
+  <header class="glass-hdr sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 lg:py-4">
+    <div class="flex items-center gap-2 cursor-pointer flex-shrink-0" onclick="window.location.href='/'">
+      <svg width="110" height="30" viewBox="0 0 240 60" fill="none">
+        <path d="M44 10 C24 10 8 21 8 35 C8 49 24 56 44 56" stroke="#1db896" stroke-width="7" stroke-linecap="round" fill="none"/>
+        <ellipse cx="9" cy="35" rx="7" ry="9" fill="#1db896"/>
+        <path d="M9 44 L6 53 L9 49 L12 53 Z" fill="#1db896"/>
+        <circle cx="9" cy="33" r="3" fill="#050f0c"/>
+        <rect x="8" y="35.5" width="2" height="4" rx="1" fill="#050f0c"/>
+        <path d="M56 12 L56 48 M56 30 Q63 21 73 30 L73 48" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M82 36 Q82 24 93 24 Q103 24 103 33 L82 33 M82 36 Q82 48 93 48" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+        <path d="M130 28 Q120 20 111 33 Q102 46 114 47 Q122 47 130 40" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+        <path d="M150 24 Q137 24 137 35 Q137 47 150 47 Q163 47 163 35 Q163 28 158 25 M161 44 L170 54" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+        <circle cx="178" cy="18" r="4" fill="#1db896"/>
+        <line x1="178" y1="27" x2="178" y2="48" stroke="#1db896" stroke-width="5.5" stroke-linecap="round"/>
+        <path d="M188 48 L188 27 Q188 27 198 38 Q208 48 208 48 L208 27" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+    </div>
+
+    <!-- Desktop nav links -->
+    <nav class="hidden lg:flex items-center gap-6 text-sm font-semibold text-tx2">
+      <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/'">Главная</span>
+      <span class="hover:text-tl cursor-pointer transition-colors" onclick="doSearch()">Все отели</span>
+      <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/favorites'">Избранное</span>
+      <% if user_signed_in? %>
+        <% if current_user.supervisor? %>
+          <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/supervisor'">Супервайзор</span>
+        <% end %>
+        <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/users/sign_out'">Выйти</span>
+      <% else %>
+        <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/users/sign_in'">Войти</span>
+      <% end %>
+    </nav>
+
+    <div class="flex items-center gap-2">
+      <button id="ni-fav" onclick="window.location.href='/favorites'" title="Избранное"
+        class="w-9 h-9 lg:w-10 lg:h-10 rounded-xl border border-white/10 bg-white/[.04] flex items-center justify-center text-tx2 cursor-pointer transition-all hover:border-tl hover:text-tl hover:bg-tl/10">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+      </button>
+      <button onclick="openMenu()"
+        class="w-9 h-9 lg:w-10 lg:h-10 rounded-xl border border-white/10 bg-white/[.04] flex items-center justify-center text-tx2 cursor-pointer transition-all hover:border-tl hover:text-tl hover:bg-tl/10">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════ HOME ══════════════════════════ -->
+  <div class="pg on" id="pg-home">
+
+    <!-- Hero + Form: desktop side-by-side, mobile stacked -->
+    <div class="lg:grid lg:grid-cols-2 lg:gap-0 lg:min-h-[calc(100vh-62px)]">
+
+      <!-- Hero -->
+      <div class="relative px-5 sm:px-8 lg:px-14 pt-10 sm:pt-14 pb-14 sm:pb-16 lg:pt-24 lg:pb-24 overflow-hidden flex flex-col justify-end lg:justify-center"
+           style="background: radial-gradient(ellipse 80% 60% at 30% 50%,rgba(29,184,150,.22) 0%,transparent 70%), radial-gradient(ellipse 50% 50% at 90% 10%,rgba(29,184,150,.1) 0%,transparent 70%)">
+        <div class="inline-flex items-center gap-2 bg-tl/10 border border-tl/30 text-tl font-bold tracking-[1.4px] uppercase px-3.5 py-1.5 rounded-full mb-5 w-fit"
+             style="font-size:clamp(9px,1.1vw,11px)">
+          <span class="w-1.5 h-1.5 bg-tl rounded-full animate-pulse2"></span>
+          Более 12 000 направлений
+        </div>
+        <h1 class="font-serif text-tx tracking-tight mb-3 leading-[1.18]"
+            style="font-size:clamp(28px,4vw,52px)">
+          Ваш идеальный<br>отель — <em class="text-tl not-italic">везде</em><br>в мире.
+        </h1>
+        <p class="text-tx2 leading-relaxed max-w-[420px]" style="font-size:clamp(13px,1.3vw,16px)">
+          Ищите, сравнивайте и бронируйте лучшие отели<br class="hidden sm:block">с Checqin — умные путешествия, переосмыслённые.
+        </p>
+
+        <!-- Stats row — desktop only -->
+        <div class="hidden lg:flex items-center gap-8 mt-10">
+          <div>
+            <div class="font-serif text-3xl text-tl">12K+</div>
+            <div class="text-xs text-tx3 font-semibold mt-0.5 tracking-wide uppercase">Направлений</div>
+          </div>
+          <div class="w-px h-10 bg-white/10"></div>
+          <div>
+            <div class="font-serif text-3xl text-tl">4.9★</div>
+            <div class="text-xs text-tx3 font-semibold mt-0.5 tracking-wide uppercase">Рейтинг</div>
+          </div>
+          <div class="w-px h-10 bg-white/10"></div>
+          <div>
+            <div class="font-serif text-3xl text-tl">2M+</div>
+            <div class="text-xs text-tx3 font-semibold mt-0.5 tracking-wide uppercase">Пользователей</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search form -->
+      <div class="flex items-center justify-center px-4 sm:px-8 lg:px-10 pb-10 lg:py-16"
+           style="background:rgba(9,20,16,.4)">
+        <div class="glass rounded-[24px] sm:rounded-[28px] p-5 sm:p-7 lg:p-8 w-full max-w-[520px] shadow-[0_20px_60px_rgba(0,0,0,.4)] -mt-6 lg:mt-0 relative z-10">
+
+          <h2 class="font-serif text-tx mb-5 hidden lg:block" style="font-size:clamp(20px,2vw,24px)">Найти жильё</h2>
+
+          <!-- Форма поиска -->
+          <%= form_tag search_hotels_path, method: :get, class: "search-form" do %>
+            <!-- Куда -->
+            <div class="mb-4">
+              <div class="text-[9px] font-extrabold tracking-[1.8px] uppercase text-tx3 mb-1.5">Куда едем?</div>
+              <%= text_field_tag :city, params[:city], placeholder: "Город, отель или аэропорт…", class: "f-in", id: "dest" %>
+            </div>
+
+            <!-- Даты -->
+            <div class="grid grid-cols-2 gap-2.5 mb-4">
+              <div>
+                <div class="text-[9px] font-extrabold tracking-[1.8px] uppercase text-tx3 mb-1.5">Заезд</div>
+                <button type="button" class="d-btn" id="ci-b" onclick="openCal('checkin')">
+                  <svg class="w-3.5 h-3.5 text-tl flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                  <span id="ci-txt">23 мар, 2026</span>
+                </button>
+              </div>
+              <div>
+                <div class="text-[9px] font-extrabold tracking-[1.8px] uppercase text-tx3 mb-1.5">Выезд</div>
+                <button type="button" class="d-btn" id="co-b" onclick="openCal('checkout')">
+                  <svg class="w-3.5 h-3.5 text-tl flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                  <span id="co-txt">24 мар, 2026</span>
+                </button>
+              </div>
+            </div>
+
+            <%= hidden_field_tag :checkin, "", id: "checkin_hidden" %>
+            <%= hidden_field_tag :checkout, "", id: "checkout_hidden" %>
+            <%= hidden_field_tag :guests, "2", id: "guests_hidden" %>
+
+            <!-- Гости -->
+            <div class="mb-5">
+              <div class="text-[9px] font-extrabold tracking-[1.8px] uppercase text-tx3 mb-1.5">Гости</div>
+              <div class="flex items-center justify-between px-4 py-3 border border-white/8 rounded-[14px] bg-white/[.04]">
+                <div>
+                  <div class="text-[10px] text-tx3 font-semibold tracking-wide">1 номер для</div>
+                  <div class="font-bold text-tx mt-0.5" id="gv" style="font-size:clamp(13px,1.4vw,15px)">2 гостей</div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <button type="button" onclick="adjG(-1)" class="w-8 h-8 rounded-[10px] border border-tl/30 bg-white/[.04] text-tl text-lg flex items-center justify-center transition-all hover:bg-tl hover:text-bg hover:border-tl">−</button>
+                  <span class="font-extrabold text-tx min-w-[20px] text-center" id="gn" style="font-size:clamp(14px,1.5vw,16px)">2</span>
+                  <button type="button" onclick="adjG(1)" class="w-8 h-8 rounded-[10px] border border-tl/30 bg-white/[.04] text-tl text-lg flex items-center justify-center transition-all hover:bg-tl hover:text-bg hover:border-tl">+</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Кнопка -->
+            <button type="submit" id="srch-btn"
+              class="w-full py-4 rounded-2xl border-none text-bg font-extrabold tracking-wide flex items-center justify-center gap-2 cursor-pointer transition-all"
+              style="background:linear-gradient(135deg,#1db896 0%,#15a07f 60%,#0d7a60 100%);box-shadow:0 8px 30px rgba(29,184,150,.35);font-size:clamp(13px,1.4vw,15px)"
+              onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 14px 40px rgba(29,184,150,.45)'"
+              onmouseout="this.style.transform='';this.style.boxShadow='0 8px 30px rgba(29,184,150,.35)'">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              Найти отели
+            </button>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Popular destinations -->
+    <div class="px-4 sm:px-6 lg:px-10 py-8 lg:py-12 bg-bg2">
+      <div class="flex items-center justify-between mb-4 lg:mb-6">
+        <div class="font-bold text-tx" style="font-size:clamp(16px,2vw,22px)">Популярные направления</div>
+        <div class="text-tl font-semibold cursor-pointer transition-all hover:opacity-75" style="font-size:clamp(11px,1.2vw,14px)" onclick="doSearch()">Все →</div>
+      </div>
+      <!-- Scroll on mobile, grid on desktop -->
+      <div class="no-sb flex gap-3 overflow-x-auto pb-2 lg:grid lg:grid-cols-5 lg:overflow-visible lg:gap-4 xl:gap-5" id="dest-scroll">
+        <% @popular_cities ||= ['Москва', 'Санкт-Петербург', 'Сочи', 'Казань', 'Калининград'] %>
+        <% @popular_cities.each do |city| %>
+          <div onclick="document.getElementById('dest').value='<%= city %>';doSearch()"
+            style="flex-shrink:0;width:clamp(140px,28vw,200px);border-radius:18px;overflow:hidden;position:relative;cursor:pointer;border:1px solid rgba(29,184,150,.18);transition:transform .25s;aspect-ratio:3/4"
+            onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform=''">
+            <img src="https://picsum.photos/seed/<%= city.parameterize %>/300/400" alt="<%= city %>" loading="lazy"
+              style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s">
+            <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(5,15,12,.92) 0%,rgba(5,15,12,.2) 50%,transparent 100%);display:flex;flex-direction:column;justify-content:flex-end;padding:14px">
+              <div style="font-size:clamp(14px,1.6vw,17px);font-weight:700;color:#fff;line-height:1.2"><%= city %></div>
+              <div style="font-size:clamp(10px,1.1vw,12px);color:rgba(255,255,255,.6);margin-top:3px">от 2 500 ₽</div>
+            </div>
+            <div style="position:absolute;top:10px;left:10px;background:rgba(29,184,150,.88);color:#050f0c;font-size:9px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;padding:4px 9px;border-radius:7px;backdrop-filter:blur(6px)">🏨 Топ</div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ МЕНЮ ══ -->
+<div class="fixed inset-0 z-[200] hidden" id="mover">
+  <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeMenu()"></div>
+  <div class="absolute right-0 top-0 bottom-0 w-[290px] sm:w-[340px] bg-bg3 border-l border-white/8 flex flex-col animate-drawerIn">
+    <div class="flex items-center justify-between p-5 border-b border-white/8">
+      <svg width="100" viewBox="0 0 140 36" fill="none">
+        <path d="M28 5 C16 5 6 13 6 22 C6 31 16 36 28 36" stroke="#1db896" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <ellipse cx="7" cy="22" rx="5" ry="6" fill="#1db896"/>
+        <path d="M7 28 L5 34 L7 31 L9 34 Z" fill="#1db896"/>
+        <circle cx="7" cy="21" r="2" fill="#050f0c"/>
+        <rect x="6.2" y="22.5" width="1.6" height="3" rx=".8" fill="#050f0c"/>
+        <path d="M35 8 L35 32 M35 20 Q40 14 46 20 L46 32" stroke="#1db896" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M52 26 Q52 18 59 18 Q66 18 66 24 L52 24 M52 26 Q52 32 59 32" stroke="#1db896" stroke-width="4" stroke-linecap="round" fill="none"/>
+        <path d="M82 20 Q75 15 70 23 Q65 31 73 32 Q79 32 82 27" stroke="#1db896" stroke-width="4" stroke-linecap="round" fill="none"/>
+        <path d="M96 17 Q88 17 88 24 Q88 32 96 32 Q104 32 104 24 Q104 19 101 17 M102 30 L108 36" stroke="#1db896" stroke-width="4" stroke-linecap="round" fill="none"/>
+        <circle cx="113" cy="12" r="2.5" fill="#1db896"/>
+        <line x1="113" y1="18" x2="113" y2="32" stroke="#1db896" stroke-width="4" stroke-linecap="round"/>
+        <path d="M120 32 L120 18 Q120 18 127 26 Q134 32 134 32 L134 18" stroke="#1db896" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <button onclick="closeMenu()" class="w-8 h-8 rounded-[9px] border border-white/10 bg-white/[.04] text-tx2 text-base flex items-center justify-center transition-all hover:border-tl hover:text-tl">✕</button>
+    </div>
+    <div class="flex-1 overflow-y-auto">
+      <div onclick="window.location.href='<%= new_user_session_path %>'" class="flex items-center justify-between px-5 py-4 border-b border-white/8 cursor-pointer hover:bg-tl/5 transition-colors">
+        <div class="flex items-center gap-3.5">
+          <div class="w-10 h-10 rounded-xl bg-tl/10 border border-tl/20 flex items-center justify-center text-tl"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></div>
+          <span class="text-sm font-semibold text-tx"><% if user_signed_in? %><%= current_user.email %><% else %>Войти<% end %></span>
+        </div>
+        <svg class="w-4 h-4 text-tx3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+      </div>
+      <div class="flex items-center justify-between px-5 py-4 border-b border-white/8 cursor-pointer hover:bg-tl/5 transition-colors">
+        <div class="flex items-center gap-3.5">
+          <div class="w-10 h-10 rounded-xl bg-tl/10 border border-tl/20 flex items-center justify-center text-tl"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+          <span class="text-sm font-semibold text-tx">Помощь</span>
+        </div>
+        <svg class="w-4 h-4 text-tx3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+      </div>
+      <div class="flex items-center justify-between px-5 py-4 border-b border-white/8 cursor-pointer hover:bg-tl/5 transition-colors">
+        <div class="flex items-center gap-3.5">
+          <div class="w-10 h-10 rounded-xl bg-tl/10 border border-tl/20 flex items-center justify-center text-tl"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+          <span class="text-sm font-semibold text-tx">Валюта</span>
+        </div>
+        <div class="flex items-center gap-2"><span class="text-xs text-tx3">RUB ₽</span><svg class="w-4 h-4 text-tx3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></div>
+      </div>
+    </div>
+    <div class="px-5 py-5 border-t border-white/8 text-center">
+      <div class="text-xs font-extrabold text-tl tracking-widest">CHECQIN</div>
+      <div class="text-[11px] text-tx3 mt-1">Умные путешествия.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ КАЛЕНДАРЬ ══ -->
+<div class="fixed inset-0 z-[300] hidden items-end lg:items-center justify-center" id="cov"
+     onclick="if(event.target===this)closeCal()">
+  <div class="absolute inset-0 bg-black/70 backdrop-blur-md" onclick="closeCal()"></div>
+  <div class="relative w-full lg:w-auto lg:min-w-[420px] max-w-[520px] mx-auto bg-bg3 border border-tl/20 rounded-t-[26px] lg:rounded-[26px] overflow-hidden animate-sheetUp">
+
+    <div class="bg-bg4 px-5 sm:px-6 pt-5 pb-4 border-b border-white/8">
+      <div class="w-9 h-1 bg-tx3/40 rounded-full mx-auto mb-4 lg:hidden"></div>
+      <div class="font-extrabold tracking-[1.5px] uppercase text-tl mb-2" id="chint" style="font-size:clamp(9px,1vw,11px)">Выберите дату заезда</div>
+      <div class="flex items-center justify-between">
+        <div class="font-serif text-tx" id="cmnth" style="font-size:clamp(18px,2vw,22px)">Март 2026</div>
+        <div class="flex gap-1.5">
+          <button id="cprev" onclick="cNav(-1)" class="w-9 h-9 rounded-[10px] border border-tl/20 bg-white/[.04] text-tx2 text-base flex items-center justify-center transition-all hover:border-tl hover:text-tl disabled:opacity-20 disabled:cursor-not-allowed">‹</button>
+          <button id="cnext" onclick="cNav(1)"  class="w-9 h-9 rounded-[10px] border border-tl/20 bg-white/[.04] text-tx2 text-base flex items-center justify-center transition-all hover:border-tl hover:text-tl">›</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="px-3.5 sm:px-5 pt-4 pb-2 bg-bg3">
+      <div class="grid grid-cols-7 mb-2">
+        <div class="text-center text-tx3 font-extrabold tracking-[.8px] uppercase py-1" style="font-size:clamp(8px,.9vw,10px)">Вс</div>
+        <div class="text-center text-tx3 font-extrabold tracking-[.8px] uppercase py-1" style="font-size:clamp(8px,.9vw,10px)">Пн</div>
+        <div class="text-center text-tx3 font-extrabold tracking-[.8px] uppercase py-1" style="font-size:clamp(8px,.9vw,10px)">Вт</div>
+        <div class="text-center text-tx3 font-extrabold tracking-[.8px] uppercase py-1" style="font-size:clamp(8px,.9vw,10px)">Ср</div>
+        <div class="text-center text-tx3 font-extrabold tracking-[.8px] uppercase py-1" style="font-size:clamp(8px,.9vw,10px)">Чт</div>
+        <div class="text-center text-tx3 font-extrabold tracking-[.8px] uppercase py-1" style="font-size:clamp(8px,.9vw,10px)">Пт</div>
+        <div class="text-center text-tx3 font-extrabold tracking-[.8px] uppercase py-1" style="font-size:clamp(8px,.9vw,10px)">Сб</div>
+      </div>
+      <div class="grid grid-cols-7 gap-0.5" id="cdays"></div>
+    </div>
+
+    <div class="flex gap-2.5 px-4 sm:px-5 py-3 border-t border-white/8">
+      <div class="flex-1 p-2.5 rounded-[13px] bg-white/[.04] border border-white/8 cursor-pointer transition-all" id="csb-ci" onclick="setCalMode('checkin')">
+        <div class="font-extrabold tracking-[1.2px] uppercase text-tx3" style="font-size:clamp(8px,.9vw,10px)">ЗАЕЗД</div>
+        <div class="font-bold text-tx mt-1" id="ci-sv" style="font-size:clamp(12px,1.3vw,14px)">—</div>
+      </div>
+      <div class="flex-1 p-2.5 rounded-[13px] bg-white/[.04] border border-white/8 cursor-pointer transition-all" id="csb-co" onclick="setCalMode('checkout')">
+        <div class="font-extrabold tracking-[1.2px] uppercase text-tx3" style="font-size:clamp(8px,.9vw,10px)">ВЫЕЗД</div>
+        <div class="font-bold text-tx mt-1" id="co-sv" style="font-size:clamp(12px,1.3vw,14px)">—</div>
+      </div>
+    </div>
+
+    <div class="flex gap-2.5 px-4 sm:px-5 pb-6 sm:pb-8 pt-3">
+      <button onclick="closeCal()" class="flex-1 py-3.5 rounded-2xl border border-white/10 bg-white/[.04] text-tx2 font-semibold cursor-pointer font-sans transition-all hover:border-tl hover:text-tl" style="font-size:clamp(12px,1.3vw,14px)">Отмена</button>
+      <button onclick="confirmDates()" class="flex-[2] py-3.5 rounded-2xl border-none text-bg font-extrabold cursor-pointer font-sans" style="background:linear-gradient(135deg,#1db896,#15a07f);box-shadow:0 6px 20px rgba(29,184,150,.35);font-size:clamp(12px,1.3vw,14px)">Подтвердить даты</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── AURORA ── */
+(function(){
+  const c=document.getElementById('aurora'),ctx=c.getContext('2d');
+  let W,H,t=0;
+  const orbs=[
+    {x:.2,y:.3,r:.38,col:'rgba(29,184,150,.18)',sp:.0003},
+    {x:.8,y:.1,r:.3,col:'rgba(29,184,150,.12)',sp:.0005},
+    {x:.5,y:.75,r:.42,col:'rgba(13,122,96,.13)',sp:.0002},
+    {x:.1,y:.9,r:.25,col:'rgba(29,184,150,.1)',sp:.0006},
+  ];
+  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight}
+  resize();window.addEventListener('resize',resize);
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    orbs.forEach(o=>{
+      const ox=W*(o.x+.08*Math.sin(t*o.sp*3));
+      const oy=H*(o.y+.06*Math.cos(t*o.sp*2));
+      const r=Math.min(W,H)*o.r;
+      const g=ctx.createRadialGradient(ox,oy,0,ox,oy,r);
+      g.addColorStop(0,o.col);g.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=g;ctx.beginPath();ctx.arc(ox,oy,r,0,Math.PI*2);ctx.fill();
+    });
+    t++;requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ── STATE ── */
+const S={
+  guests:2,
+  ci:new Date(2026,2,23),co:new Date(2026,2,24),
+  calM:'checkin',calY:2026,calMo:2,
+  tCI:null,tCO:null
+};
+
+const MN=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+const MS=['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+
+/* ── GUESTS ── */
+function adjG(d){
+  S.guests=Math.max(1,Math.min(10,S.guests+d));
+  document.getElementById('gn').textContent=S.guests;
+  document.getElementById('guests_hidden').value=S.guests;
+  const f=['гость','гостя','гостей'];
+  const v=S.guests,n=v%100>=11&&v%100<=19?2:v%10===1?0:v%10>=2&&v%10<=4?1:2;
+  document.getElementById('gv').textContent=v+' '+f[n];
+}
+
+/* ── DATES ── */
+function fmtS(d){if(!d)return'—';return d.getDate()+' '+MS[d.getMonth()]+', '+d.getFullYear()}
+function fmtSh(d){if(!d)return'—';return d.getDate()+' '+MS[d.getMonth()]}
+
+/* ── SEARCH ── */
+function doSearch(){
+  document.getElementById('checkin_hidden').value = S.ci.toISOString().split('T')[0];
+  document.getElementById('checkout_hidden').value = S.co.toISOString().split('T')[0];
+  document.getElementById('guests_hidden').value = S.guests;
+  document.querySelector('.search-form').submit();
+}
+
+/* ── MENU ── */
+function openMenu(){const m=document.getElementById('mover');m.classList.remove('hidden');m.classList.add('flex')}
+function closeMenu(){const m=document.getElementById('mover');m.classList.add('hidden');m.classList.remove('flex')}
+
+/* ── CALENDAR ── */
+function openCal(mode){
+  S.calM=mode;S.tCI=S.ci?new Date(S.ci):null;S.tCO=S.co?new Date(S.co):null;
+  const ref=mode==='checkin'?S.ci:S.co;
+  S.calY=ref?ref.getFullYear():2026;S.calMo=ref?ref.getMonth():2;
+  refCal();
+  const el=document.getElementById('cov');
+  el.classList.remove('hidden');el.classList.add('flex');
+}
+function closeCal(){const el=document.getElementById('cov');el.classList.add('hidden');el.classList.remove('flex')}
+function cNav(d){
+  S.calMo+=d;
+  if(S.calMo>11){S.calMo=0;S.calY++}
+  if(S.calMo<0){S.calMo=11;S.calY--}
+  if(S.calY<2020){S.calY=2020;S.calMo=0}
+  refCal();
+}
+function setCalMode(m){S.calM=m;refCal()}
+function refCal(){
+  document.getElementById('cmnth').textContent=MN[S.calMo]+' '+S.calY;
+  document.getElementById('cprev').disabled=(S.calY===2020&&S.calMo===0);
+  document.getElementById('chint').textContent=S.calM==='checkin'?'Выберите дату заезда':'Выберите дату выезда';
+  const ci=document.getElementById('csb-ci'),co=document.getElementById('csb-co');
+  ci.style.borderColor=S.calM==='checkin'?'#1db896':'rgba(255,255,255,.08)';
+  ci.style.background=S.calM==='checkin'?'rgba(29,184,150,.08)':'rgba(255,255,255,.04)';
+  co.style.borderColor=S.calM==='checkout'?'#1db896':'rgba(255,255,255,.08)';
+  co.style.background=S.calM==='checkout'?'rgba(29,184,150,.08)':'rgba(255,255,255,.04)';
+  document.getElementById('ci-sv').textContent=fmtSh(S.tCI)||'—';
+  document.getElementById('co-sv').textContent=fmtSh(S.tCO)||'—';
+  renderCalDays();
+}
+function renderCalDays(){
+  const y=S.calY,m=S.calMo;
+  const first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate();
+  const today=new Date();today.setHours(0,0,0,0);
+  const ci=S.tCI,co=S.tCO;
+  let h='';
+  for(let i=0;i<first;i++)h+=`<button class="cd emp" disabled></button>`;
+  for(let d=1;d<=days;d++){
+    const dt=new Date(y,m,d);
+    const isCI=ci&&dt.toDateString()===ci.toDateString();
+    const isCO=co&&dt.toDateString()===co.toDateString();
+    const inR=ci&&co&&dt>ci&&dt<co;
+    const isTd=dt.toDateString()===today.toDateString();
+    const before=dt<new Date(2020,0,1);
+    let cls='cd';
+    if(isCI||isCO)cls+=' sel';else if(inR)cls+=' rng';
+    if(isTd&&!isCI&&!isCO)cls+=' td';
+    if(before)cls+=' dis';
+    h+=`<button class="${cls}" onclick="pickDay(${y},${m},${d})">${d}</button>`;
+  }
+  document.getElementById('cdays').innerHTML=h;
+}
+function pickDay(y,m,d){
+  const dt=new Date(y,m,d);
+  if(dt<new Date(2020,0,1))return;
+  if(S.calM==='checkin'){
+    S.tCI=dt;if(S.tCO&&S.tCO<=dt)S.tCO=null;S.calM='checkout';
+  }else{
+    if(S.tCI&&dt<=S.tCI){S.tCI=dt;S.tCO=null;S.calM='checkout';}
+    else S.tCO=dt;
+  }
+  refCal();
+}
+function confirmDates(){
+  if(!S.tCI)return;
+  S.ci=S.tCI;S.co=S.tCO||new Date(S.tCI.getTime()+86400000);
+  document.getElementById('ci-txt').textContent=fmtS(S.ci);
+  document.getElementById('co-txt').textContent=fmtS(S.co);
+  document.getElementById('checkin_hidden').value = S.ci.toISOString().split('T')[0];
+  document.getElementById('checkout_hidden').value = S.co.toISOString().split('T')[0];
+  closeCal();
+}
+
+/* ── INIT ── */
+document.getElementById('ci-txt').textContent=fmtS(S.ci);
+document.getElementById('co-txt').textContent=fmtS(S.co);
+document.getElementById('checkin_hidden').value = S.ci.toISOString().split('T')[0];
+document.getElementById('checkout_hidden').value = S.co.toISOString().split('T')[0];
+document.getElementById('guests_hidden').value = S.guests;
+</script>
+</body>
+</html>

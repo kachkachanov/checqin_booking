@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checqin — Супервайзор</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+tailwind.config={theme:{extend:{
+  colors:{tl:'#1db896',tl2:'#15a07f',bg:'#050f0c',bg2:'#091410',bg3:'#0d1c18',bg4:'#122720',tx:'#e8f5f1',tx2:'#9bbdb5',tx3:'#5a8078'},
+  fontFamily:{serif:['"DM Serif Display"','serif'],sans:['"Plus Jakarta Sans"','sans-serif']},
+  keyframes:{fadeUp:{from:{opacity:'0',transform:'translateY(16px)'},to:{opacity:'1',transform:'translateY(0)'}},pulse2:{'0%,100%':{opacity:'1',transform:'scale(1)'},'50%':{opacity:'.4',transform:'scale(.7)'}}},
+  animation:{fadeUp:'fadeUp .38s ease',pulse2:'pulse2 2s ease-in-out infinite'},
+}}}
+</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',sans-serif}
+#aurora{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.42}
+.glass{background:rgba(13,28,24,.88);backdrop-filter:blur(22px);border:1px solid rgba(29,184,150,.18)}
+.glass-hdr{background:rgba(5,15,12,.86);backdrop-filter:blur(20px);border-bottom:1px solid rgba(29,184,150,.14)}
+.choice-card{flex:1;position:relative;border:2px solid rgba(255,255,255,.12);border-radius:20px;background:rgba(255,255,255,.04);cursor:pointer;transition:all .25s;overflow:hidden;display:flex;flex-direction:row;align-items:stretch;min-height:140px}
+.choice-card.sel{border-color:#1db896;background:rgba(29,184,150,.07);box-shadow:0 0 0 3px rgba(29,184,150,.14)}
+.choice-card:hover:not(.sel){border-color:rgba(29,184,150,.35);background:rgba(29,184,150,.04)}
+</style>
+</head>
+<body class="bg-bg text-tx">
+<canvas id="aurora"></canvas>
+
+<div class="relative z-10 flex flex-col min-h-screen">
+  <header class="glass-hdr sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6 lg:px-10 py-3.5">
+    <a href="<%= supervisor_root_path %>" class="flex items-center gap-2 text-tx2 hover:text-tl transition-colors text-sm font-semibold"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>Мои объекты</a>
+    <div class="flex items-center gap-2.5 bg-white/[.04] border border-white/10 rounded-full pl-1 pr-3 py-1"><div class="w-7 h-7 rounded-full bg-tl/20 border border-tl/30 flex items-center justify-center text-tl text-xs font-bold"><%= current_user.email[0].upcase %></div><span class="text-sm font-semibold text-tx2 hidden sm:block"><%= current_user.email.split('@').first %></span></div>
+  </header>
+  <main class="flex-1 px-4 sm:px-6 lg:px-14 py-10 lg:py-16 max-w-[1000px] mx-auto w-full">
+    <div class="mb-10">
+      <h1 class="font-serif text-tx mb-2" style="font-size:clamp(28px,4vw,48px)">Добро пожаловать в Супервайзор</h1>
+      <p class="text-tx2" style="font-size:clamp(15px,1.6vw,18px)">Какой у вас объект?</p>
+    </div>
+    <div class="flex flex-col sm:flex-row gap-4 mb-8">
+      <div class="choice-card" id="c-hotels" onclick="selChoice('hotels')">
+        <div class="flex-1 p-6 flex flex-col justify-center">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all" id="r-hotels" style="border-color:rgba(255,255,255,.2)"></div>
+            <span class="text-base font-bold text-tx">Объект с номерами</span>
+          </div>
+          <p class="text-sm text-tx2 leading-relaxed pl-9">Отель, база отдыха, апарт-отели и другие объекты размещения с номерным фондом</p>
+        </div>
+        <div class="w-[130px] sm:w-[150px] flex-shrink-0 relative overflow-hidden rounded-r-[18px]">
+          <img src="https://picsum.photos/seed/hotel22/300/280" alt="Отель" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<div style=width:100%;height:100%;background:linear-gradient(135deg,#122720,#0d1c18);display:flex;align-items:center;justify-content:center;font-size:48px>🏨</div>'">
+        </div>
+      </div>
+      <div class="choice-card" id="c-rooms" onclick="selChoice('rooms')">
+        <div class="flex-1 p-6 flex flex-col justify-center">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all" id="r-rooms" style="border-color:rgba(255,255,255,.2)"></div>
+            <span class="text-base font-bold text-tx">Жильё целиком</span>
+          </div>
+          <p class="text-sm text-tx2 leading-relaxed pl-9">Квартира, апартаменты, дом и другое жильё, которое можно забронировать целиком</p>
+        </div>
+        <div class="w-[130px] sm:w-[150px] flex-shrink-0 relative overflow-hidden rounded-r-[18px]">
+          <img src="https://picsum.photos/seed/apt33/300/280" alt="Жильё" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<div style=width:100%;height:100%;background:linear-gradient(135deg,#122720,#0d1c18);display:flex;align-items:center;justify-content:center;font-size:48px>🏠</div>'">
+        </div>
+      </div>
+    </div>
+    <div id="ch-err" class="hidden mb-4 text-sm font-medium" style="color:#f87171">Выберите тип объекта, чтобы продолжить</div>
+    <button onclick="goToForm()" class="flex items-center gap-2.5 px-8 py-4 rounded-[16px] border-none text-bg font-extrabold text-sm cursor-pointer transition-all" style="background:linear-gradient(135deg,#1db896,#15a07f);box-shadow:0 8px 28px rgba(29,184,150,.35)" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">Далее <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></button>
+  </main>
+</div>
+
+<script>
+(function(){
+  const c=document.getElementById('aurora'),ctx=c.getContext('2d');let W,H,t=0;
+  const orbs=[{x:.15,y:.25,r:.4,col:'rgba(29,184,150,.14)',sp:.0003},{x:.85,y:.2,r:.35,col:'rgba(29,184,150,.1)',sp:.0005},{x:.4,y:.8,r:.38,col:'rgba(13,122,96,.11)',sp:.0002},{x:.9,y:.65,r:.3,col:'rgba(29,184,150,.09)',sp:.0006}];
+  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight}resize();window.addEventListener('resize',resize);
+  function draw(){ctx.clearRect(0,0,W,H);orbs.forEach(o=>{const ox=W*(o.x+.07*Math.sin(t*o.sp*3)),oy=H*(o.y+.05*Math.cos(t*o.sp*2)),r=Math.min(W,H)*o.r,g=ctx.createRadialGradient(ox,oy,0,ox,oy,r);g.addColorStop(0,o.col);g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(ox,oy,r,0,Math.PI*2);ctx.fill()});t++;requestAnimationFrame(draw)}draw();})();
+
+let choice = null;
+
+function selChoice(t){
+  choice = t;
+  document.getElementById('c-hotels').classList.toggle('sel', t === 'hotels');
+  document.getElementById('c-rooms').classList.toggle('sel', t === 'rooms');
+  const rh = document.getElementById('r-hotels'), rr = document.getElementById('r-rooms');
+  if(t === 'hotels'){
+    rh.style.cssText = 'border-color:#1db896;background:#1db896';
+    rh.innerHTML = '<div style="width:8px;height:8px;border-radius:50%;background:#050f0c"></div>';
+    rr.style.cssText = 'border-color:rgba(255,255,255,.2)';
+    rr.innerHTML = '';
+  } else {
+    rr.style.cssText = 'border-color:#1db896;background:#1db896';
+    rr.innerHTML = '<div style="width:8px;height:8px;border-radius:50%;background:#050f0c"></div>';
+    rh.style.cssText = 'border-color:rgba(255,255,255,.2)';
+    rh.innerHTML = '';
+  }
+  document.getElementById('ch-err').classList.add('hidden');
+}
+
+function goToForm(){
+  if(!choice){
+    document.getElementById('ch-err').classList.remove('hidden');
+    return;
+  }
+  window.location.href = choice === 'hotels' ? '<%= supervisor_new_hotel_path %>' : '<%= supervisor_new_property_path %>';
+}
+</script>
+</body>
+</html>

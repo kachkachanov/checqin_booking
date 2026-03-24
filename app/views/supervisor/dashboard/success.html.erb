@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checqin — Успешно добавлено</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+tailwind.config={theme:{extend:{
+  colors:{tl:'#1db896',tl2:'#15a07f',bg:'#050f0c',bg2:'#091410',bg3:'#0d1c18',bg4:'#122720',tx:'#e8f5f1',tx2:'#9bbdb5',tx3:'#5a8078'},
+  fontFamily:{serif:['"DM Serif Display"','serif'],sans:['"Plus Jakarta Sans"','sans-serif']},
+}}}
+</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',sans-serif}
+#aurora{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.42}
+.glass{background:rgba(13,28,24,.88);backdrop-filter:blur(22px);border:1px solid rgba(29,184,150,.18)}
+.glass-hdr{background:rgba(5,15,12,.86);backdrop-filter:blur(20px);border-bottom:1px solid rgba(29,184,150,.14)}
+</style>
+</head>
+<body class="bg-bg text-tx">
+<canvas id="aurora"></canvas>
+
+<div class="relative z-10 flex flex-col min-h-screen">
+  <header class="glass-hdr sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6 lg:px-10 py-3.5">
+    <div><svg width="108" height="29" viewBox="0 0 240 60" fill="none"><path d="M44 10 C24 10 8 21 8 35 C8 49 24 56 44 56" stroke="#1db896" stroke-width="7" stroke-linecap="round" fill="none"/><ellipse cx="9" cy="35" rx="7" ry="9" fill="#1db896"/><path d="M9 44 L6 53 L9 49 L12 53 Z" fill="#1db896"/><circle cx="9" cy="33" r="3" fill="#050f0c"/><rect x="8" y="35.5" width="2" height="4" rx="1" fill="#050f0c"/><path d="M56 12 L56 48 M56 30 Q63 21 73 30 L73 48" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M82 36 Q82 24 93 24 Q103 24 103 33 L82 33 M82 36 Q82 48 93 48" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" fill="none"/><path d="M130 28 Q120 20 111 33 Q102 46 114 47 Q122 47 130 40" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" fill="none"/><path d="M150 24 Q137 24 137 35 Q137 47 150 47 Q163 47 163 35 Q163 28 158 25 M161 44 L170 54" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" fill="none"/><circle cx="178" cy="18" r="4" fill="#1db896"/><line x1="178" y1="27" x2="178" y2="48" stroke="#1db896" stroke-width="5.5" stroke-linecap="round"/><path d="M188 48 L188 27 Q188 27 198 38 Q208 48 208 48 L208 27" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
+    <a href="<%= supervisor_root_path %>" class="w-9 h-9 rounded-full border border-white/15 bg-white/[.04] flex items-center justify-center text-tx2 hover:border-tl hover:text-tl transition-all text-lg">✕</a>
+  </header>
+  <main class="flex-1 flex items-center justify-center px-4 py-14">
+    <div class="glass rounded-[26px] p-8 sm:p-12 text-center max-w-[520px] w-full shadow-[0_24px_80px_rgba(0,0,0,.45)]">
+      <div class="w-20 h-20 rounded-[24px] bg-tl/10 border border-tl/25 flex items-center justify-center text-tl mx-auto mb-6 text-4xl" style="box-shadow:0 0 50px rgba(29,184,150,.2)">
+        <%= @object.is_a?(Hotel) ? '🏨' : '🏠' %>
+      </div>
+      <h2 class="font-serif text-tx mb-3" style="font-size:clamp(22px,2.6vw,32px)"><%= @object.is_a?(Hotel) ? 'Отель добавлен!' : 'Жильё добавлено!' %></h2>
+      <p class="text-tx2 text-sm leading-relaxed mb-2">Объект <span class="text-tl font-semibold">«<%= @object.name %>»</span> отправлен на проверку.</p>
+      <p class="text-tx3 text-xs mb-8">Обычно проверка занимает 1–2 рабочих дня. Мы уведомим вас по email.</p>
+      <div class="bg-white/[.03] border border-white/8 rounded-[16px] p-4 mb-6 text-left">
+        <div class="text-[10px] font-extrabold tracking-[1.4px] uppercase text-tx3 mb-3">Детали объекта</div>
+        <div class="flex flex-col gap-2">
+          <div class="flex justify-between text-sm"><span class="text-tx3">Тип</span><span class="text-tx font-semibold"><%= @object.is_a?(Hotel) ? @object.hotel_type : @object.property_type %></span></div>
+          <div class="flex justify-between text-sm"><span class="text-tx3">Город</span><span class="text-tx font-semibold"><%= @object.city %></span></div>
+          <div class="flex justify-between text-sm"><span class="text-tx3">Статус</span><span class="font-semibold" style="color:#f5c842">На проверке</span></div>
+        </div>
+      </div>
+      <div class="flex flex-col sm:flex-row gap-3 justify-center">
+        <a href="<%= supervisor_choice_path %>" class="px-5 py-3.5 rounded-[14px] border border-white/10 bg-white/[.04] text-tx2 font-semibold text-sm cursor-pointer transition-all hover:border-tl/40 hover:text-tx">Добавить ещё объект</a>
+        <a href="<%= supervisor_root_path %>" class="px-5 py-3.5 rounded-[14px] border-none text-bg font-extrabold text-sm cursor-pointer transition-all" style="background:linear-gradient(135deg,#1db896,#15a07f);box-shadow:0 6px 20px rgba(29,184,150,.35)">К моим объектам →</a>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+  const c=document.getElementById('aurora'),ctx=c.getContext('2d');let W,H,t=0;
+  const orbs=[{x:.15,y:.25,r:.4,col:'rgba(29,184,150,.14)',sp:.0003},{x:.85,y:.2,r:.35,col:'rgba(29,184,150,.1)',sp:.0005},{x:.4,y:.8,r:.38,col:'rgba(13,122,96,.11)',sp:.0002},{x:.9,y:.65,r:.3,col:'rgba(29,184,150,.09)',sp:.0006}];
+  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight}resize();window.addEventListener('resize',resize);
+  function draw(){ctx.clearRect(0,0,W,H);orbs.forEach(o=>{const ox=W*(o.x+.07*Math.sin(t*o.sp*3)),oy=H*(o.y+.05*Math.cos(t*o.sp*2)),r=Math.min(W,H)*o.r,g=ctx.createRadialGradient(ox,oy,0,ox,oy,r);g.addColorStop(0,o.col);g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(ox,oy,r,0,Math.PI*2);ctx.fill()});t++;requestAnimationFrame(draw)}draw();})();
+</script>
+</body>
+</html>

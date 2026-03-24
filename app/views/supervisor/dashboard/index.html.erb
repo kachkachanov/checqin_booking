@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checqin — Супервайзор</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+tailwind.config={theme:{extend:{
+  colors:{tl:'#1db896',tl2:'#15a07f',bg:'#050f0c',bg2:'#091410',bg3:'#0d1c18',bg4:'#122720',tx:'#e8f5f1',tx2:'#9bbdb5',tx3:'#5a8078'},
+  fontFamily:{serif:['"DM Serif Display"','serif'],sans:['"Plus Jakarta Sans"','sans-serif']},
+  keyframes:{
+    fadeUp:{from:{opacity:'0',transform:'translateY(16px)'},to:{opacity:'1',transform:'translateY(0)'}},
+    pulse2:{'0%,100%':{opacity:'1',transform:'scale(1)'},'50%':{opacity:'.4',transform:'scale(.7)'}},
+  },
+  animation:{fadeUp:'fadeUp .38s ease',pulse2:'pulse2 2s ease-in-out infinite'},
+}}}
+</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',sans-serif}
+#aurora{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.42}
+.glass{background:rgba(13,28,24,.88);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border:1px solid rgba(29,184,150,.18)}
+.glass-hdr{background:rgba(5,15,12,.86);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(29,184,150,.14)}
+.search-inp{width:100%;padding:12px 44px 12px 16px;border:1.5px solid rgba(255,255,255,.1);border-radius:14px;background:rgba(255,255,255,.05);color:#e8f5f1;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;outline:none;transition:all .2s}
+.search-inp:focus{border-color:#1db896;background:rgba(29,184,150,.06);box-shadow:0 0 0 3px rgba(29,184,150,.13)}
+.search-inp::placeholder{color:#5a8078}
+.prop-card{background:rgba(13,28,24,.7);border:1px solid rgba(255,255,255,.08);border-radius:20px;overflow:hidden;transition:all .25s}
+.prop-card:hover{border-color:rgba(29,184,150,.3);transform:translateY(-3px);box-shadow:0 16px 50px rgba(0,0,0,.35)}
+</style>
+</head>
+<body class="bg-bg text-tx">
+<canvas id="aurora"></canvas>
+
+<div class="relative z-10 flex flex-col min-h-screen">
+  <header class="glass-hdr sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6 lg:px-10 py-3.5">
+    <div><svg width="108" height="29" viewBox="0 0 240 60" fill="none"><path d="M44 10 C24 10 8 21 8 35 C8 49 24 56 44 56" stroke="#1db896" stroke-width="7" stroke-linecap="round" fill="none"/><ellipse cx="9" cy="35" rx="7" ry="9" fill="#1db896"/><path d="M9 44 L6 53 L9 49 L12 53 Z" fill="#1db896"/><circle cx="9" cy="33" r="3" fill="#050f0c"/><rect x="8" y="35.5" width="2" height="4" rx="1" fill="#050f0c"/><path d="M56 12 L56 48 M56 30 Q63 21 73 30 L73 48" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M82 36 Q82 24 93 24 Q103 24 103 33 L82 33 M82 36 Q82 48 93 48" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" fill="none"/><path d="M130 28 Q120 20 111 33 Q102 46 114 47 Q122 47 130 40" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" fill="none"/><path d="M150 24 Q137 24 137 35 Q137 47 150 47 Q163 47 163 35 Q163 28 158 25 M161 44 L170 54" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" fill="none"/><circle cx="178" cy="18" r="4" fill="#1db896"/><line x1="178" y1="27" x2="178" y2="48" stroke="#1db896" stroke-width="5.5" stroke-linecap="round"/><path d="M188 48 L188 27 Q188 27 198 38 Q208 48 208 48 L208 27" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
+    <nav class="hidden lg:flex items-center gap-6 text-sm font-semibold text-tx2"><span class="text-tl">Мои объекты</span><span class="hover:text-tl cursor-pointer transition-colors">Бронирования</span><span class="hover:text-tl cursor-pointer transition-colors">Аналитика</span></nav>
+    <div class="flex items-center gap-2.5 bg-white/[.04] border border-white/10 rounded-full pl-1 pr-3 py-1"><div class="w-7 h-7 rounded-full bg-tl/20 border border-tl/30 flex items-center justify-center text-tl text-xs font-bold"><%= current_user.email[0].upcase %></div><span class="text-sm font-semibold text-tx2 hidden sm:block"><%= current_user.email.split('@').first %></span></div>
+  </header>
+  <main class="flex-1 px-4 sm:px-6 lg:px-10 py-8 max-w-[1200px] mx-auto w-full">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+      <div>
+        <div class="inline-flex items-center gap-2 bg-tl/10 border border-tl/25 text-tl text-[10px] font-bold tracking-[1.4px] uppercase px-3 py-1.5 rounded-full mb-2.5"><span class="w-1.5 h-1.5 bg-tl rounded-full animate-pulse2"></span>Супервайзор</div>
+        <h1 class="font-serif text-tx" style="font-size:clamp(22px,3vw,34px)">Мои объекты</h1>
+      </div>
+      <div class="flex items-center gap-3 flex-1 sm:flex-none sm:min-w-[420px] justify-end">
+        <div class="relative flex-1 sm:flex-none sm:w-[260px]">
+          <input id="search-inp" type="text" placeholder="Поиск по названию…" class="search-inp" oninput="filterProps()">
+          <div class="absolute right-3.5 top-1/2 -translate-y-1/2 text-tx3 pointer-events-none"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg></div>
+        </div>
+        <a href="<%= supervisor_choice_path %>" class="flex items-center gap-2 px-4 py-3 rounded-[14px] border-none text-bg font-extrabold text-sm cursor-pointer flex-shrink-0 transition-all" style="background:linear-gradient(135deg,#1db896,#15a07f);box-shadow:0 6px 20px rgba(29,184,150,.35)" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>Добавить объект
+        </a>
+      </div>
+    </div>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-7">
+      <div class="glass rounded-[16px] p-4"><div class="text-[9px] font-extrabold tracking-[1.5px] uppercase text-tx3 mb-1">Объектов</div><div class="font-serif text-tx" id="s-total" style="font-size:clamp(26px,2.5vw,32px)"><%= @objects.count %></div></div>
+      <div class="glass rounded-[16px] p-4"><div class="text-[9px] font-extrabold tracking-[1.5px] uppercase text-tx3 mb-1">Активных</div><div class="font-serif text-tl" id="s-active" style="font-size:clamp(26px,2.5vw,32px)"><%= @objects.select { |o| o.respond_to?(:status) ? o.status == 'active' : true }.count %></div></div>
+      <div class="glass rounded-[16px] p-4"><div class="text-[9px] font-extrabold tracking-[1.5px] uppercase text-tx3 mb-1">На проверке</div><div class="font-serif text-tx" id="s-review" style="font-size:clamp(26px,2.5vw,32px)"><%= @objects.select { |o| o.respond_to?(:status) ? o.status == 'review' : false }.count %></div></div>
+      <div class="glass rounded-[16px] p-4"><div class="text-[9px] font-extrabold tracking-[1.5px] uppercase text-tx3 mb-1">Отели / Жильё</div><div class="font-serif text-tx" id="s-types" style="font-size:clamp(26px,2.5vw,32px)"><%= @hotels.count %>/<%= @properties.count %></div></div>
+    </div>
+    <div id="props-grid" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+      <% if @objects.any? %>
+        <% (@hotels + @properties).each do |obj| %>
+          <div class="prop-card">
+            <div style="height:150px;background:linear-gradient(135deg,#122720,#0d1c18);display:flex;align-items:center;justify-content:center;font-size:52px;position:relative">
+              <%= obj.is_a?(Hotel) ? '🏨' : '🏠' %>
+              <div style="position:absolute;top:10px;left:10px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(245,200,66,.15);color:#f5c842">На проверке</div>
+              <div style="position:absolute;top:10px;right:10px;padding:3px 9px;border-radius:20px;font-size:9px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;background:rgba(255,255,255,.08);color:#9bbdb5"><%= obj.is_a?(Hotel) ? 'Отель' : 'Жильё' %></div>
+            </div>
+            <div style="padding:14px 16px">
+              <div style="font-size:14px;font-weight:700;color:#e8f5f1;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><%= obj.name %></div>
+              <div style="font-size:11px;color:#5a8078;margin-bottom:8px"><%= obj.city %></div>
+              <div style="font-size:12px;color:#9bbdb5"><%= obj.is_a?(Hotel) ? obj.hotel_type : obj.property_type %></div>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="col-span-full glass rounded-[24px] p-10 sm:p-16 text-center max-w-[540px] mx-auto">
+          <div class="w-20 h-20 rounded-[24px] bg-tl/10 border border-tl/20 flex items-center justify-center text-tl mx-auto mb-6 text-4xl">🏠</div>
+          <h2 class="font-serif text-tx mb-3" style="font-size:clamp(22px,2.4vw,30px)">Объектов пока нет</h2>
+          <p class="text-tx2 text-sm leading-relaxed mb-8">Добавьте первое жильё — это займёт около 5 минут.</p>
+          <a href="<%= supervisor_choice_path %>" class="inline-flex items-center gap-2 px-6 py-4 rounded-[14px] border-none text-bg font-extrabold text-sm cursor-pointer transition-all" style="background:linear-gradient(135deg,#1db896,#15a07f);box-shadow:0 8px 28px rgba(29,184,150,.35)" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>Добавить первый объект
+          </a>
+        </div>
+      <% end %>
+    </div>
+    <div id="no-search" class="hidden text-center py-16"><div class="text-4xl mb-4">🔍</div><div class="text-tx2 text-sm">Ничего не найдено по запросу «<span id="no-q"></span>»</div></div>
+  </main>
+</div>
+
+<script>
+(function(){
+  const c=document.getElementById('aurora'),ctx=c.getContext('2d');let W,H,t=0;
+  const orbs=[{x:.15,y:.25,r:.4,col:'rgba(29,184,150,.14)',sp:.0003},{x:.85,y:.2,r:.35,col:'rgba(29,184,150,.1)',sp:.0005},{x:.4,y:.8,r:.38,col:'rgba(13,122,96,.11)',sp:.0002},{x:.9,y:.65,r:.3,col:'rgba(29,184,150,.09)',sp:.0006}];
+  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight}resize();window.addEventListener('resize',resize);
+  function draw(){ctx.clearRect(0,0,W,H);orbs.forEach(o=>{const ox=W*(o.x+.07*Math.sin(t*o.sp*3)),oy=H*(o.y+.05*Math.cos(t*o.sp*2)),r=Math.min(W,H)*o.r,g=ctx.createRadialGradient(ox,oy,0,ox,oy,r);g.addColorStop(0,o.col);g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(ox,oy,r,0,Math.PI*2);ctx.fill()});t++;requestAnimationFrame(draw)}draw();})();
+
+const objects = <%= (@hotels + @properties).to_json.html_safe %>;
+
+function filterProps(){
+  const q=document.getElementById('search-inp').value.trim().toLowerCase();
+  document.getElementById('no-q').textContent=q;
+  const filtered = objects.filter(o => o.name.toLowerCase().includes(q) || (o.city && o.city.toLowerCase().includes(q)) || (o.hotel_type && o.hotel_type.toLowerCase().includes(q)) || (o.property_type && o.property_type.toLowerCase().includes(q)));
+  const grid = document.getElementById('props-grid');
+  const noSearch = document.getElementById('no-search');
+  if(!q || filtered.length){
+    noSearch.classList.add('hidden');
+    if(filtered.length){
+      grid.innerHTML = '<div class="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">' + filtered.map(o => `
+        <div class="prop-card">
+          <div style="height:150px;background:linear-gradient(135deg,#122720,#0d1c18);display:flex;align-items:center;justify-content:center;font-size:52px;position:relative">
+            ${o.type === 'Hotel' ? '🏨' : '🏠'}
+            <div style="position:absolute;top:10px;left:10px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(245,200,66,.15);color:#f5c842">На проверке</div>
+            <div style="position:absolute;top:10px;right:10px;padding:3px 9px;border-radius:20px;font-size:9px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;background:rgba(255,255,255,.08);color:#9bbdb5">${o.type === 'Hotel' ? 'Отель' : 'Жильё'}</div>
+          </div>
+          <div style="padding:14px 16px">
+            <div style="font-size:14px;font-weight:700;color:#e8f5f1;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${o.name}</div>
+            <div style="font-size:11px;color:#5a8078;margin-bottom:8px">${o.city}</div>
+            <div style="font-size:12px;color:#9bbdb5">${o.hotel_type || o.property_type}</div>
+          </div>
+        </div>
+      `).join('') + '</div>';
+    } else {
+      grid.innerHTML = '';
+      noSearch.classList.remove('hidden');
+    }
+  } else {
+    grid.innerHTML = '';
+    noSearch.classList.remove('hidden');
+  }
+}
+</script>
+</body>
+</html>

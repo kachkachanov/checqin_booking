@@ -1,0 +1,26 @@
+<%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "w-full" }) do |f| %>
+  <div class="relative mb-4">
+    <%= f.email_field :email, autofocus: true, autocomplete: "email", placeholder: "example@mail.ru", class: "f-inp" %>
+    <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-tx3 pointer-events-none">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+    </span>
+  </div>
+
+  <div class="relative mb-3">
+    <%= f.password_field :password, autocomplete: "current-password", placeholder: "••••••••", class: "f-inp" %>
+    <button type="button" onclick="togglePassword()" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-tx3 hover:text-tl">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+    </button>
+  </div>
+
+  <div class="flex items-center justify-between mb-6">
+    <label class="flex items-center gap-2 cursor-pointer">
+      <%= f.check_box :remember_me, class: "hidden" %>
+      <div class="cb-box" id="remember-box" onclick="toggleCheckbox('remember')"></div>
+      <span class="text-sm text-tx2">Запомнить меня</span>
+    </label>
+    <%= link_to "Забыли пароль?", new_password_path(resource_name), class: "text-sm text-tl font-semibold hover:underline" %>
+  </div>
+
+  <%= f.submit "Войти", class: "w-full py-4 rounded-[16px] border-none text-bg font-extrabold text-sm tracking-wide flex items-center justify-center gap-2 cursor-pointer transition-all", style: "background:linear-gradient(135deg,#1db896,#15a07f,#0d7a60);box-shadow:0 8px 30px rgba(29,184,150,.35)" %>
+<% end %>
