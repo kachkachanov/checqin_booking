@@ -32,7 +32,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif}
 <div class="relative z-10 flex flex-col min-h-screen">
   <header class="glass-hdr sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6 lg:px-10 py-3.5">
     <a href="<%= supervisor_root_path %>" class="flex items-center gap-2 text-tx2 hover:text-tl transition-colors text-sm font-semibold"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>Мои объекты</a>
-    <div class="flex items-center gap-2.5 bg-white/[.04] border border-white/10 rounded-full pl-1 pr-3 py-1"><div class="w-7 h-7 rounded-full bg-tl/20 border border-tl/30 flex items-center justify-center text-tl text-xs font-bold"><%= current_user.email[0].upcase %></div><span class="text-sm font-semibold text-tx2 hidden sm:block"><%= current_user.email.split('@').first %></span></div>
+    <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2.5 bg-white/[.04] border border-white/10 rounded-full pl-1 pr-3 py-1"><div class="w-7 h-7 rounded-full bg-tl/20 border border-tl/30 flex items-center justify-center text-tl text-xs font-bold"><%= current_user.email[0].upcase %></div><span class="text-sm font-semibold text-tx2 hidden sm:block"><%= current_user.email.split('@').first %></span></div>
+      <%= button_to "Выйти", destroy_user_session_path, method: :delete, class: "px-4 py-2 rounded-[12px] border border-white/10 bg-white/[.04] text-tx2 font-semibold text-sm cursor-pointer transition-all hover:border-tl hover:text-tl", form: { data: { turbo: false } } %>
+    </div>
   </header>
   <main class="flex-1 px-4 sm:px-6 lg:px-14 py-10 lg:py-16 max-w-[1000px] mx-auto w-full">
     <div class="mb-10">

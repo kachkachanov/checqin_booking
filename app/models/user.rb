@@ -11,6 +11,10 @@ class User < ApplicationRecord
     role == 'supervisor'
   end
 
+  def admin?
+    role == 'admin'
+  end
+
   def regular?
     role == 'user'
   end

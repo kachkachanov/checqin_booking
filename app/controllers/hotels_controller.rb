@@ -3,19 +3,20 @@ class HotelsController < ApplicationController
   before_action :authenticate_user!, only: [:new, :create, :edit, :update, :destroy]
 
   def index
-    @hotels = Hotel.all.order(created_at: :desc)
+    @hotels = Hotel.active.order(created_at: :desc)
     @popular_cities = Hotel.distinct.pluck(:city).first(5)
     @popular_cities = ['Москва', 'Санкт-Петербург', 'Сочи', 'Казань', 'Калининград'] if @popular_cities.empty?
   end
 
   def search
     @city = params[:city]
-    @checkin = params[:checkin]
-    @checkout = params[:checkout]
+    @checkin = parse_date(params[:checkin])
+    @checkout = parse_date(params[:checkout])
     @guests = params[:guests].to_i
 
-    @hotels = Hotel.all
+    @hotels = Hotel.active
     @hotels = @hotels.by_city(@city) if @city.present?
+    @hotels = @hotels.available_for_stay(@checkin, @checkout)
     @hotels = @hotels.with_available_rooms if @guests.present?
 
     render :search
@@ -58,10 +59,18 @@ class HotelsController < ApplicationController
   private
 
   def set_hotel
-    @hotel = Hotel.find(params[:id])
+    @hotel = Hotel.active.find(params[:id])
   end
 
   def hotel_params
     params.require(:hotel).permit(:name, :description, :hotel_type, :city, :address, :phone, :email, :rating, :chain, photos: [])
+  end
+
+  def parse_date(value)
+    return if value.blank?
+
+    Date.parse(value)
+  rescue ArgumentError
+    nil
   end
 end

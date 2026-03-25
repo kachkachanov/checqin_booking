@@ -22,6 +22,8 @@
     <div class="text-xs text-tx3 hidden sm:block">
       Нет аккаунта?
       <%= link_to "Регистрация", new_user_registration_path, class: "text-tl font-semibold cursor-pointer hover:underline", data: { turbo: false } %>
+      ·
+      <%= link_to "Стать супервайзором", new_user_registration_path(account_type: :supervisor), class: "text-tl font-semibold cursor-pointer hover:underline", data: { turbo: false } %>
     </div>
   </header>
 
@@ -97,6 +99,10 @@
           <div class="text-center mt-5 text-sm text-tx3">
             Нет аккаунта?
             <%= link_to "Зарегистрироваться", new_user_registration_path, class: "text-tl font-semibold cursor-pointer hover:underline", data: { turbo: false } %>
+          </div>
+          <div class="text-center mt-2 text-sm text-tx3">
+            Хотите добавлять свои объекты?
+            <%= link_to "Регистрация супервайзора", new_user_registration_path(account_type: :supervisor), class: "text-tl font-semibold cursor-pointer hover:underline", data: { turbo: false } %>
           </div>
         <% end %>
       </div>

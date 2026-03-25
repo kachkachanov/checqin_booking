@@ -27,6 +27,21 @@ class Supervisor::DashboardController < ApplicationController
     end
   end
 
+  def edit_hotel
+    @hotel = current_user.hotels.find(params[:id])
+    render :new_hotel
+  end
+
+  def update_hotel
+    @hotel = current_user.hotels.find(params[:id])
+
+    if @hotel.update(hotel_params)
+      redirect_to supervisor_root_path, notice: 'Отель обновлён.'
+    else
+      render :new_hotel, status: :unprocessable_entity
+    end
+  end
+
   def new_property
     @property = Property.new
   end
@@ -36,6 +51,21 @@ class Supervisor::DashboardController < ApplicationController
 
     if @property.save
       redirect_to supervisor_success_path(type: 'property', id: @property.id), notice: 'Жильё создано и отправлено на проверку'
+    else
+      render :new_property, status: :unprocessable_entity
+    end
+  end
+
+  def edit_property
+    @property = current_user.properties.find(params[:id])
+    render :new_property
+  end
+
+  def update_property
+    @property = current_user.properties.find(params[:id])
+
+    if @property.update(property_params)
+      redirect_to supervisor_root_path, notice: 'Жильё обновлено.'
     else
       render :new_property, status: :unprocessable_entity
     end
@@ -59,10 +89,10 @@ class Supervisor::DashboardController < ApplicationController
   end
 
   def hotel_params
-    params.require(:hotel).permit(:name, :hotel_type, :city, :address, :description, :chain, photos: [])
+    params.require(:hotel).permit(:name, :hotel_type, :city, :address, :description, :chain, :base_price_per_night, :available_from, :available_to, photos: [])
   end
 
   def property_params
-    params.require(:property).permit(:name, :property_type, :city, :address, :rooms_count, :area, :guests_capacity, :description, photos: [])
+    params.require(:property).permit(:name, :property_type, :city, :address, :rooms_count, :area, :guests_capacity, :description, :base_price_per_night, :available_from, :available_to, photos: [])
   end
 end

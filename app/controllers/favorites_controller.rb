@@ -2,11 +2,11 @@ class FavoritesController < ApplicationController
   before_action :authenticate_user!
 
   def show
-    @favorites = current_user.favorites.includes(:hotel)
+    @favorites = current_user.favorites.includes(:hotel).joins(:hotel).merge(Hotel.active)
   end
 
   def toggle
-    @hotel = Hotel.find(params[:hotel_id])
+    @hotel = Hotel.active.find(params[:hotel_id])
     favorite = current_user.favorites.find_by(hotel: @hotel)
 
     if favorite

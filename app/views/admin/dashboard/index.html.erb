@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roomly Admin</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="min-h-screen bg-[#050f0c] text-[#e8f5f1]" style="font-family:'Plus Jakarta Sans',sans-serif">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-[1.4px] text-[#1db896] border border-[#1db896]/30 bg-[#1db896]/10 mb-3">
+          Admin
+        </div>
+        <h1 class="text-3xl sm:text-4xl" style="font-family:'DM Serif Display',serif">Модерация объектов</h1>
+        <p class="text-sm text-[#9bbdb5] mt-2">Одобряйте публикацию объектов или отклоняйте их после проверки.</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="text-sm text-[#9bbdb5]">
+          Вошли как <span class="text-[#e8f5f1] font-semibold"><%= current_user.email %></span>
+        </div>
+        <%= button_to "Выйти", destroy_user_session_path, method: :delete, class: "px-4 py-2 rounded-xl border border-white/10 bg-white/5 text-sm font-semibold text-[#9bbdb5] cursor-pointer hover:border-[#1db896] hover:text-[#1db896]", form: { data: { turbo: false } } %>
+      </div>
+    </div>
+
+    <% if notice.present? %>
+      <div class="mb-6 rounded-2xl border border-[#1db896]/30 bg-[#1db896]/10 px-4 py-3 text-sm text-[#e8f5f1]"><%= notice %></div>
+    <% end %>
+
+    <% if alert.present? %>
+      <div class="mb-6 rounded-2xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-200"><%= alert %></div>
+    <% end %>
+
+    <div class="grid lg:grid-cols-2 gap-6">
+      <section class="rounded-3xl border border-white/10 bg-white/5 p-5">
+        <div class="flex items-center justify-between mb-5">
+          <h2 class="text-2xl" style="font-family:'DM Serif Display',serif">Отели</h2>
+          <span class="text-sm text-[#9bbdb5]"><%= @hotels.count %> шт.</span>
+        </div>
+
+        <% if @hotels.any? %>
+          <div class="space-y-4">
+            <% @hotels.each do |hotel| %>
+              <div class="rounded-2xl border border-white/10 bg-[#091410] p-4">
+                <div class="flex items-start justify-between gap-4">
+                  <div>
+                    <div class="font-semibold text-lg"><%= hotel.name %></div>
+                    <div class="text-sm text-[#9bbdb5] mt-1"><%= hotel.city %>, <%= hotel.address %></div>
+                    <div class="text-xs text-[#5a8078] mt-2">Представитель: <%= hotel.user&.email || 'не указан' %></div>
+                  </div>
+                  <span class="px-3 py-1 rounded-full text-xs font-bold bg-yellow-300/15 text-yellow-300">
+                    На проверке
+                  </span>
+                </div>
+
+                <div class="mt-4 flex gap-3">
+                  <%= button_to "Одобрить", admin_approve_hotel_path(hotel), method: :patch, class: "px-4 py-2 rounded-xl bg-[#1db896] text-[#050f0c] font-bold text-sm border-0 cursor-pointer" %>
+                  <%= button_to "Отклонить", admin_reject_hotel_path(hotel), method: :patch, class: "px-4 py-2 rounded-xl bg-red-400/85 text-white font-bold text-sm border-0 cursor-pointer" %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="rounded-2xl border border-dashed border-white/10 bg-[#091410] p-6 text-sm text-[#9bbdb5]">
+            Новых заявок по отелям на модерации нет.
+          </div>
+        <% end %>
+      </section>
+
+      <section class="rounded-3xl border border-white/10 bg-white/5 p-5">
+        <div class="flex items-center justify-between mb-5">
+          <h2 class="text-2xl" style="font-family:'DM Serif Display',serif">Жильё</h2>
+          <span class="text-sm text-[#9bbdb5]"><%= @properties.count %> шт.</span>
+        </div>
+
+        <% if @properties.any? %>
+          <div class="space-y-4">
+            <% @properties.each do |property| %>
+              <div class="rounded-2xl border border-white/10 bg-[#091410] p-4">
+                <div class="flex items-start justify-between gap-4">
+                  <div>
+                    <div class="font-semibold text-lg"><%= property.name %></div>
+                    <div class="text-sm text-[#9bbdb5] mt-1"><%= property.city %>, <%= property.address %></div>
+                    <div class="text-xs text-[#5a8078] mt-2">Представитель: <%= property.user&.email || 'не указан' %></div>
+                  </div>
+                  <span class="px-3 py-1 rounded-full text-xs font-bold bg-yellow-300/15 text-yellow-300">
+                    На проверке
+                  </span>
+                </div>
+
+                <div class="mt-4 flex gap-3">
+                  <%= button_to "Одобрить", admin_approve_property_path(property), method: :patch, class: "px-4 py-2 rounded-xl bg-[#1db896] text-[#050f0c] font-bold text-sm border-0 cursor-pointer" %>
+                  <%= button_to "Отклонить", admin_reject_property_path(property), method: :patch, class: "px-4 py-2 rounded-xl bg-red-400/85 text-white font-bold text-sm border-0 cursor-pointer" %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="rounded-2xl border border-dashed border-white/10 bg-[#091410] p-6 text-sm text-[#9bbdb5]">
+            Новых заявок по жилью на модерации нет.
+          </div>
+        <% end %>
+      </section>
+    </div>
+  </div>
+</body>
+</html>

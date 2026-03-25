@@ -42,12 +42,15 @@ body{font-family:'Plus Jakarta Sans',sans-serif}
   <header class="glass-hdr sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6 lg:px-10 py-3.5">
     <a href="<%= supervisor_root_path %>" class="flex items-center gap-2 text-tx2 hover:text-tl transition-colors text-sm font-semibold"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>Мои объекты</a>
     <div class="text-xs text-tx3 hidden sm:block">Жильё целиком</div>
-    <div class="flex items-center gap-2.5 bg-white/[.04] border border-white/10 rounded-full pl-1 pr-3 py-1"><div class="w-7 h-7 rounded-full bg-tl/20 border border-tl/30 flex items-center justify-center text-tl text-xs font-bold"><%= current_user.email[0].upcase %></div><span class="text-sm font-semibold text-tx2 hidden sm:block"><%= current_user.email.split('@').first %></span></div>
+    <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2.5 bg-white/[.04] border border-white/10 rounded-full pl-1 pr-3 py-1"><div class="w-7 h-7 rounded-full bg-tl/20 border border-tl/30 flex items-center justify-center text-tl text-xs font-bold"><%= current_user.email[0].upcase %></div><span class="text-sm font-semibold text-tx2 hidden sm:block"><%= current_user.email.split('@').first %></span></div>
+      <%= button_to "Выйти", destroy_user_session_path, method: :delete, class: "px-4 py-2 rounded-[12px] border border-white/10 bg-white/[.04] text-tx2 font-semibold text-sm cursor-pointer transition-all hover:border-tl hover:text-tl", form: { data: { turbo: false } } %>
+    </div>
   </header>
   <main class="flex-1 px-4 sm:px-6 lg:px-14 py-10 max-w-[860px] mx-auto w-full">
-    <h1 class="font-serif text-tx mb-8" style="font-size:clamp(28px,4vw,48px)">Об объекте</h1>
+    <h1 class="font-serif text-tx mb-8" style="font-size:clamp(28px,4vw,48px)"><%= @property.persisted? ? 'Редактирование жилья' : 'Об объекте' %></h1>
 
-    <%= form_with model: @property, url: supervisor_create_property_path, local: true, multipart: true, class: "flex flex-col gap-5" do |f| %>
+    <%= form_with model: @property, url: (@property.persisted? ? supervisor_update_property_path(@property) : supervisor_create_property_path), method: (@property.persisted? ? :patch : :post), local: true, multipart: true, class: "flex flex-col gap-5" do |f| %>
       <div>
         <%= f.label :name, class: "fi-label" do %>Название <span class="text-red-400">*</span><% end %>
         <%= f.text_field :name, placeholder: "Например, Уютная студия в центре города", class: "fi", maxlength: 80 %>
@@ -87,6 +90,21 @@ body{font-family:'Plus Jakarta Sans',sans-serif}
       <div>
         <%= f.label :address, class: "fi-label" do %>Адрес <span class="text-red-400">*</span><% end %>
         <%= f.text_field :address, placeholder: "Точный адрес, чтобы гости не потерялись", class: "fi" %>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div>
+          <%= f.label :base_price_per_night, class: "fi-label" do %>Цена за ночь, ₽ <span class="text-red-400">*</span><% end %>
+          <%= f.number_field :base_price_per_night, min: 1, step: 1, placeholder: "3500", class: "fi" %>
+        </div>
+        <div>
+          <%= f.label :available_from, class: "fi-label" do %>Доступно с <span class="text-red-400">*</span><% end %>
+          <%= f.date_field :available_from, class: "fi" %>
+        </div>
+        <div>
+          <%= f.label :available_to, class: "fi-label" do %>Доступно до <span class="text-red-400">*</span><% end %>
+          <%= f.date_field :available_to, class: "fi" %>
+        </div>
       </div>
 
       <div>

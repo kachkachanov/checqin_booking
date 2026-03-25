@@ -27,7 +27,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif}
 <div class="relative z-10 flex flex-col min-h-screen">
   <header class="glass-hdr sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6 lg:px-10 py-3.5">
     <div><svg width="108" height="29" viewBox="0 0 240 60" fill="none"><path d="M44 10 C24 10 8 21 8 35 C8 49 24 56 44 56" stroke="#1db896" stroke-width="7" stroke-linecap="round" fill="none"/><ellipse cx="9" cy="35" rx="7" ry="9" fill="#1db896"/><path d="M9 44 L6 53 L9 49 L12 53 Z" fill="#1db896"/><circle cx="9" cy="33" r="3" fill="#050f0c"/><rect x="8" y="35.5" width="2" height="4" rx="1" fill="#050f0c"/><path d="M56 12 L56 48 M56 30 Q63 21 73 30 L73 48" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M82 36 Q82 24 93 24 Q103 24 103 33 L82 33 M82 36 Q82 48 93 48" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" fill="none"/><path d="M130 28 Q120 20 111 33 Q102 46 114 47 Q122 47 130 40" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" fill="none"/><path d="M150 24 Q137 24 137 35 Q137 47 150 47 Q163 47 163 35 Q163 28 158 25 M161 44 L170 54" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" fill="none"/><circle cx="178" cy="18" r="4" fill="#1db896"/><line x1="178" y1="27" x2="178" y2="48" stroke="#1db896" stroke-width="5.5" stroke-linecap="round"/><path d="M188 48 L188 27 Q188 27 198 38 Q208 48 208 48 L208 27" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
-    <a href="<%= supervisor_root_path %>" class="w-9 h-9 rounded-full border border-white/15 bg-white/[.04] flex items-center justify-center text-tx2 hover:border-tl hover:text-tl transition-all text-lg">✕</a>
+    <div class="flex items-center gap-2">
+      <%= button_to "Выйти", destroy_user_session_path, method: :delete, class: "px-4 py-2 rounded-[12px] border border-white/10 bg-white/[.04] text-tx2 font-semibold text-sm cursor-pointer transition-all hover:border-tl hover:text-tl", form: { data: { turbo: false } } %>
+      <a href="<%= supervisor_root_path %>" class="w-9 h-9 rounded-full border border-white/15 bg-white/[.04] flex items-center justify-center text-tx2 hover:border-tl hover:text-tl transition-all text-lg">✕</a>
+    </div>
   </header>
   <main class="flex-1 flex items-center justify-center px-4 py-14">
     <div class="glass rounded-[26px] p-8 sm:p-12 text-center max-w-[520px] w-full shadow-[0_24px_80px_rgba(0,0,0,.45)]">
@@ -42,7 +45,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif}
         <div class="flex flex-col gap-2">
           <div class="flex justify-between text-sm"><span class="text-tx3">Тип</span><span class="text-tx font-semibold"><%= @object.is_a?(Hotel) ? @object.hotel_type : @object.property_type %></span></div>
           <div class="flex justify-between text-sm"><span class="text-tx3">Город</span><span class="text-tx font-semibold"><%= @object.city %></span></div>
-          <div class="flex justify-between text-sm"><span class="text-tx3">Статус</span><span class="font-semibold" style="color:#f5c842">На проверке</span></div>
+          <div class="flex justify-between text-sm"><span class="text-tx3">Статус</span><span class="font-semibold" style="color:#f5c842"><%= @object.status == 'active' ? 'Активен' : (@object.status == 'rejected' ? 'Отклонён' : 'На проверке') %></span></div>
         </div>
       </div>
       <div class="flex flex-col sm:flex-row gap-3 justify-center">

@@ -32,9 +32,14 @@
   <main class="flex-1 flex items-center justify-center px-4 py-10 lg:py-14">
     <div class="w-full max-w-[480px] mx-auto">
       <div class="glass rounded-[26px] p-6 sm:p-8 shadow-[0_28px_80px_rgba(0,0,0,.5)]">
+        <% supervisor_signup = params[:account_type] == 'supervisor' %>
         <div class="mb-6">
-          <h2 class="font-serif text-tx mb-1.5" style="font-size:clamp(28px,3vw,36px)">Создайте аккаунт</h2>
-          <p class="text-tx2 text-sm" style="line-height:1.4">Чтобы сохранять избранное и управлять данными бронирований.</p>
+          <h2 class="font-serif text-tx mb-1.5" style="font-size:clamp(28px,3vw,36px)">
+            <%= supervisor_signup ? "Регистрация супервайзора" : "Создайте аккаунт" %>
+          </h2>
+          <p class="text-tx2 text-sm" style="line-height:1.4">
+            <%= supervisor_signup ? "Создайте аккаунт, чтобы добавлять и вести свои объекты размещения." : "Чтобы сохранять избранное и управлять данными бронирований." %>
+          </p>
         </div>
 
         <% if resource.errors.any? %>
@@ -50,7 +55,8 @@
           </div>
         <% end %>
 
-        <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "w-full" }) do |f| %>
+        <%= form_for(resource, as: resource_name, url: registration_path(resource_name, account_type: params[:account_type]), html: { class: "w-full" }) do |f| %>
+          <%= hidden_field_tag :account_type, params[:account_type] if supervisor_signup %>
           <div class="mb-1.5 text-[9px] font-extrabold tracking-[1.8px] uppercase text-tx3">Электронная почта</div>
           <div class="relative mb-4">
             <%= f.email_field :email, autofocus: true, autocomplete: "email", placeholder: "example@mail.ru", class: "f-inp" %>
@@ -72,9 +78,14 @@
         <% end %>
 
         <div class="text-center mt-5 text-sm text-tx3">
-          Нажимая «Зарегистрироваться», вы соглашаетесь с
-          <span class="text-tl cursor-pointer hover:underline">условиями</span> и
-          <span class="text-tl cursor-pointer hover:underline">политикой конфиденциальности</span>.
+          <% if supervisor_signup %>
+            Уже есть аккаунт?
+            <%= link_to "Войти как супервайзор", new_user_session_path, class: "text-tl font-semibold cursor-pointer hover:underline", data: { turbo: false } %>
+          <% else %>
+            Нажимая «Зарегистрироваться», вы соглашаетесь с
+            <span class="text-tl cursor-pointer hover:underline">условиями</span> и
+            <span class="text-tl cursor-pointer hover:underline">политикой конфиденциальности</span>.
+          <% end %>
         </div>
       </div>
     </div>

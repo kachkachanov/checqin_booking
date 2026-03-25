@@ -1,7 +1,10 @@
-# This file should contain all the record creation needed to seed the database with its default values.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Examples:
-#
-#   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
-#   Character.create(name: 'Luke', movie: movies.first)
+admin_email = ENV.fetch('ADMIN_EMAIL', 'admin@roomly.local')
+admin_password = ENV.fetch('ADMIN_PASSWORD', 'password123')
+
+admin = User.find_or_initialize_by(email: admin_email)
+admin.password = admin_password if admin.new_record?
+admin.password_confirmation = admin_password if admin.new_record?
+admin.role = 'admin'
+admin.save!
+
+puts "Admin ready: #{admin.email}"
