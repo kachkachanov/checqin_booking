@@ -42,24 +42,14 @@ tailwind.config = {
 <style>
 *,*::before,*::after{box-sizing:border-box}
 body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
-
-/* ── aurora ── */
 #aurora{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5}
-
-/* ── pages ── */
 .pg{display:none}
 .pg.on{display:flex;flex-direction:column;flex:1;animation:fadeUp .38s ease}
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-
-/* ── no-scroll bars ── */
 .no-sb::-webkit-scrollbar{display:none}
 .no-sb{-ms-overflow-style:none;scrollbar-width:none}
-
-/* ── glass ── */
 .glass{background:rgba(13,28,24,.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(29,184,150,.18)}
 .glass-hdr{background:rgba(5,15,12,.82);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(29,184,150,.15)}
-
-/* ── inputs ── */
 .f-in{
   width:100%;padding:13px 16px;border:1px solid rgba(255,255,255,.08);
   border-radius:14px;background:rgba(255,255,255,.04);color:#e8f5f1;
@@ -68,8 +58,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
 }
 .f-in:focus{border-color:#1db896;background:rgba(255,255,255,.07);box-shadow:0 0 0 3px rgba(29,184,150,.2)}
 .f-in::placeholder{color:#5a8078}
-
-/* ── date buttons ── */
 .d-btn{
   width:100%;padding:12px 14px;border:1px solid rgba(255,255,255,.08);
   border-radius:14px;background:rgba(255,255,255,.04);color:#e8f5f1;
@@ -78,12 +66,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
   display:flex;align-items:center;gap:9px;transition:all .2s;outline:none;
 }
 .d-btn:hover,.d-btn:focus{border-color:#1db896;background:rgba(255,255,255,.07)}
-
-/* ── filter pills ── */
 .ft{flex-shrink:0;padding:8px 18px;border-radius:20px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);font-size:clamp(11px,1.3vw,13px);font-weight:600;color:#9bbdb5;cursor:pointer;white-space:nowrap;font-family:inherit;transition:all .2s}
 .ft.on{background:#1db896;border-color:#1db896;color:#050f0c}
-
-/* ── calendar days ── */
 .cd{
   aspect-ratio:1;display:flex;align-items:center;justify-content:center;
   font-size:clamp(11px,1.4vw,14px);font-weight:500;border-radius:9px;
@@ -96,12 +80,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
 .cd.dis{color:#5a8078;opacity:.35;cursor:not-allowed}
 .cd.emp{cursor:default}
 .cd.td:not(.sel){color:#1db896;font-weight:800}
-
-/* ── hotel card image hover ── */
 .hcard-wrap:hover .hcard-photo{transform:scale(1.05)}
 .hcard-photo{transition:transform .4s;width:100%;height:100%;object-fit:cover;display:block}
-
-/* ── DESKTOP layout helpers ── */
 @media(min-width:1024px){
   .desktop-2col{display:grid;grid-template-columns:380px 1fr;gap:0;min-height:100vh}
   .sidebar-panel{position:sticky;top:0;height:100vh;overflow-y:auto;border-right:1px solid rgba(29,184,150,.12)}
@@ -117,11 +97,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
 </head>
 <body class="bg-bg min-h-screen text-tx overflow-x-hidden">
 <canvas id="aurora"></canvas>
-
-<!-- ══ ROOT ══ -->
 <div class="relative z-10 flex flex-col min-h-screen">
-
-  <!-- ══ HEADER ══ -->
   <header class="glass-hdr sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 lg:py-4">
     <div class="flex items-center gap-2 cursor-pointer flex-shrink-0" onclick="window.location.href='/'">
       <svg width="110" height="30" viewBox="0 0 240 60" fill="none">
@@ -139,8 +115,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
         <path d="M188 48 L188 27 Q188 27 198 38 Q208 48 208 48 L208 27" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
       </svg>
     </div>
-
-    <!-- Desktop nav links -->
     <nav class="hidden lg:flex items-center gap-6 text-sm font-semibold text-tx2">
       <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/'">Главная</span>
       <span class="hover:text-tl cursor-pointer transition-colors" onclick="doSearch()">Все отели</span>
@@ -173,14 +147,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
       </button>
     </div>
   </header>
-
-  <!-- ══════════════════════════ HOME ══════════════════════════ -->
   <div class="pg on" id="pg-home">
-
-    <!-- Hero + Form: desktop side-by-side, mobile stacked -->
     <div class="lg:grid lg:grid-cols-2 lg:gap-0 lg:min-h-[calc(100vh-62px)]">
-
-      <!-- Hero -->
       <div class="relative px-5 sm:px-8 lg:px-14 pt-10 sm:pt-14 pb-14 sm:pb-16 lg:pt-24 lg:pb-24 overflow-hidden flex flex-col justify-end lg:justify-center"
            style="background: radial-gradient(ellipse 80% 60% at 30% 50%,rgba(29,184,150,.22) 0%,transparent 70%), radial-gradient(ellipse 50% 50% at 90% 10%,rgba(29,184,150,.1) 0%,transparent 70%)">
         <div class="inline-flex items-center gap-2 bg-tl/10 border border-tl/30 text-tl font-bold tracking-[1.4px] uppercase px-3.5 py-1.5 rounded-full mb-5 w-fit"
@@ -195,8 +163,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
         <p class="text-tx2 leading-relaxed max-w-[420px]" style="font-size:clamp(13px,1.3vw,16px)">
           Ищите, сравнивайте и бронируйте лучшие отели<br class="hidden sm:block">с Checqin — умные путешествия, переосмыслённые.
         </p>
-
-        <!-- Stats row — desktop only -->
         <div class="hidden lg:flex items-center gap-8 mt-10">
           <div>
             <div class="font-serif text-3xl text-tl">12K+</div>
@@ -214,23 +180,16 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
           </div>
         </div>
       </div>
-
-      <!-- Search form -->
       <div class="flex items-center justify-center px-4 sm:px-8 lg:px-10 pb-10 lg:py-16"
            style="background:rgba(9,20,16,.4)">
         <div class="glass rounded-[24px] sm:rounded-[28px] p-5 sm:p-7 lg:p-8 w-full max-w-[520px] shadow-[0_20px_60px_rgba(0,0,0,.4)] -mt-6 lg:mt-0 relative z-10">
 
           <h2 class="font-serif text-tx mb-5 hidden lg:block" style="font-size:clamp(20px,2vw,24px)">Найти жильё</h2>
-
-          <!-- Форма поиска -->
           <%= form_tag search_hotels_path, method: :get, class: "search-form" do %>
-            <!-- Куда -->
             <div class="mb-4">
               <div class="text-[9px] font-extrabold tracking-[1.8px] uppercase text-tx3 mb-1.5">Куда едем?</div>
               <%= text_field_tag :city, params[:city], placeholder: "Город, отель или аэропорт…", class: "f-in", id: "dest" %>
             </div>
-
-            <!-- Даты -->
             <div class="grid grid-cols-2 gap-2.5 mb-4">
               <div>
                 <div class="text-[9px] font-extrabold tracking-[1.8px] uppercase text-tx3 mb-1.5">Заезд</div>
@@ -251,8 +210,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
             <%= hidden_field_tag :checkin, "", id: "checkin_hidden" %>
             <%= hidden_field_tag :checkout, "", id: "checkout_hidden" %>
             <%= hidden_field_tag :guests, "2", id: "guests_hidden" %>
-
-            <!-- Гости -->
             <div class="mb-5">
               <div class="text-[9px] font-extrabold tracking-[1.8px] uppercase text-tx3 mb-1.5">Гости</div>
               <div class="flex items-center justify-between px-4 py-3 border border-white/8 rounded-[14px] bg-white/[.04]">
@@ -267,8 +224,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
                 </div>
               </div>
             </div>
-
-            <!-- Кнопка -->
             <button type="submit" id="srch-btn"
               class="w-full py-4 rounded-2xl border-none text-bg font-extrabold tracking-wide flex items-center justify-center gap-2 cursor-pointer transition-all"
               style="background:linear-gradient(135deg,#1db896 0%,#15a07f 60%,#0d7a60 100%);box-shadow:0 8px 30px rgba(29,184,150,.35);font-size:clamp(13px,1.4vw,15px)"
@@ -320,14 +275,11 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
         </div>
       </div>
     <% end %>
-
-    <!-- Popular destinations -->
     <div class="px-4 sm:px-6 lg:px-10 py-8 lg:py-12 bg-bg2">
       <div class="flex items-center justify-between mb-4 lg:mb-6">
         <div class="font-bold text-tx" style="font-size:clamp(16px,2vw,22px)">Популярные направления</div>
         <div class="text-tl font-semibold cursor-pointer transition-all hover:opacity-75" style="font-size:clamp(11px,1.2vw,14px)" onclick="doSearch()">Все →</div>
       </div>
-      <!-- Scroll on mobile, grid on desktop -->
       <div class="no-sb flex gap-3 overflow-x-auto pb-2 lg:grid lg:grid-cols-5 lg:overflow-visible lg:gap-4 xl:gap-5" id="dest-scroll">
         <% @popular_cities ||= ['Москва', 'Санкт-Петербург', 'Сочи', 'Казань', 'Калининград'] %>
         <% @popular_cities.each do |city| %>
@@ -347,8 +299,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
     </div>
   </div>
 </div>
-
-<!-- ══ МЕНЮ ══ -->
 <div class="fixed inset-0 z-[200] hidden" id="mover">
   <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeMenu()"></div>
   <div class="absolute right-0 top-0 bottom-0 w-[290px] sm:w-[340px] bg-bg3 border-l border-white/8 flex flex-col animate-drawerIn">
@@ -421,8 +371,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
     </div>
   </div>
 </div>
-
-<!-- ══ КАЛЕНДАРЬ ══ -->
 <div class="fixed inset-0 z-[300] hidden items-end lg:items-center justify-center" id="cov"
      onclick="if(event.target===this)closeCal()">
   <div class="absolute inset-0 bg-black/70 backdrop-blur-md" onclick="closeCal()"></div>
@@ -472,7 +420,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
 </div>
 
 <script>
-/* ── AURORA ── */
 (function(){
   const c=document.getElementById('aurora'),ctx=c.getContext('2d');
   let W,H,t=0;
@@ -498,8 +445,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
   }
   draw();
 })();
-
-/* ── STATE ── */
 const S={
   guests:2,
   ci:new Date(2026,2,23),co:new Date(2026,2,24),
@@ -509,8 +454,6 @@ const S={
 
 const MN=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 const MS=['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
-
-/* ── GUESTS ── */
 function adjG(d){
   S.guests=Math.max(1,Math.min(10,S.guests+d));
   document.getElementById('gn').textContent=S.guests;
@@ -519,24 +462,16 @@ function adjG(d){
   const v=S.guests,n=v%100>=11&&v%100<=19?2:v%10===1?0:v%10>=2&&v%10<=4?1:2;
   document.getElementById('gv').textContent=v+' '+f[n];
 }
-
-/* ── DATES ── */
 function fmtS(d){if(!d)return'—';return d.getDate()+' '+MS[d.getMonth()]+', '+d.getFullYear()}
 function fmtSh(d){if(!d)return'—';return d.getDate()+' '+MS[d.getMonth()]}
-
-/* ── SEARCH ── */
 function doSearch(){
   document.getElementById('checkin_hidden').value = S.ci.toISOString().split('T')[0];
   document.getElementById('checkout_hidden').value = S.co.toISOString().split('T')[0];
   document.getElementById('guests_hidden').value = S.guests;
   document.querySelector('.search-form').submit();
 }
-
-/* ── MENU ── */
 function openMenu(){const m=document.getElementById('mover');m.classList.remove('hidden');m.classList.add('flex')}
 function closeMenu(){const m=document.getElementById('mover');m.classList.add('hidden');m.classList.remove('flex')}
-
-/* ── CALENDAR ── */
 function openCal(mode){
   S.calM=mode;S.tCI=S.ci?new Date(S.ci):null;S.tCO=S.co?new Date(S.co):null;
   const ref=mode==='checkin'?S.ci:S.co;
@@ -609,8 +544,6 @@ function confirmDates(){
   document.getElementById('checkout_hidden').value = S.co.toISOString().split('T')[0];
   closeCal();
 }
-
-/* ── INIT ── */
 document.getElementById('ci-txt').textContent=fmtS(S.ci);
 document.getElementById('co-txt').textContent=fmtS(S.co);
 document.getElementById('checkin_hidden').value = S.ci.toISOString().split('T')[0];

@@ -42,8 +42,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
 <canvas id="aurora"></canvas>
 
 <div class="relative z-10 flex flex-col min-h-screen">
-
-  <!-- HEADER -->
   <header class="glass-hdr sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 lg:py-4">
     <div class="flex items-center gap-2 cursor-pointer flex-shrink-0" onclick="window.location.href='/'">
       <svg width="110" height="30" viewBox="0 0 240 60" fill="none">
@@ -87,8 +85,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
       </button>
     </div>
   </header>
-
-  <!-- Top bar -->
   <div class="glass-hdr sticky top-0 z-10 flex items-center gap-3 px-4 sm:px-6 lg:px-8 py-3 lg:py-4">
     <button onclick="window.location.href='/'"
       class="w-9 h-9 rounded-[11px] border border-white/10 bg-white/[.04] text-tx2 flex items-center justify-center flex-shrink-0 transition-all hover:border-tl hover:text-tl">
@@ -100,22 +96,17 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
         <%= @checkin ? @checkin : '' %> — <%= @checkout ? @checkout : '' %> · <%= @guests %> гост.
       </div>
     </div>
-    <!-- Desktop filter inside topbar -->
     <div class="hidden lg:flex gap-2">
       <button class="ft on" data-f="all" onclick="setFlt(this,'all')">Все</button>
       <button class="ft" data-f="hotels" onclick="setFlt(this,'hotels')">Отели</button>
       <button class="ft" data-f="suites" onclick="setFlt(this,'suites')">Апартаменты</button>
     </div>
   </div>
-
-  <!-- Mobile filter bar -->
   <div class="lg:hidden no-sb flex gap-2 px-4 py-3 overflow-x-auto bg-bg2">
     <button class="ft on" data-f="all" onclick="setFlt(this,'all')">Все</button>
     <button class="ft" data-f="hotels" onclick="setFlt(this,'hotels')">Отели</button>
     <button class="ft" data-f="suites" onclick="setFlt(this,'suites')">Апартаменты</button>
   </div>
-
-  <!-- Hotels grid -->
   <div class="px-4 sm:px-6 lg:px-8 xl:px-10 pt-4 pb-10 hotels-grid" id="hotels-list">
     <% if @hotels.any? %>
       <% @hotels.each do |hotel| %>
@@ -170,7 +161,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
 </div>
 
 <script>
-/* ── AURORA ── */
 (function(){
   const c=document.getElementById('aurora'),ctx=c.getContext('2d');
   let W,H,t=0;
@@ -196,15 +186,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
   }
   draw();
 })();
-
-/* ── FILTER ── */
 function setFlt(btn,f){
   document.querySelectorAll('.ft').forEach(b=>b.classList.remove('on'));
   document.querySelectorAll('.ft[data-f="'+f+'"]').forEach(b=>b.classList.add('on'));
-  // Здесь можно добавить AJAX фильтрацию
 }
-
-/* ── FAVORITES ── */
 function toggleFav(id){
   fetch('/favorites/toggle/' + id, {
     method: 'POST',
@@ -216,8 +201,6 @@ function toggleFav(id){
     location.reload();
   });
 }
-
-// Responsive grid
 function applyHotelsGrid(){
   const w=window.innerWidth;
   const el=document.getElementById('hotels-list');

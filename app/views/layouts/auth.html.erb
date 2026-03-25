@@ -7,8 +7,6 @@
   <meta name="csrf-token" content="<%= form_authenticity_token %>">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    // Tailwind utilities like `bg-bg`, `text-tx3`, etc are used in auth views.
-    // Define the same theme as in other pages so the classes exist.
     tailwind.config = {
       theme: {
         extend: {
@@ -93,7 +91,6 @@
       cursor:pointer;
     }
     .cb-box.checked{background:#1db896;border-color:#1db896}
-    /* Back-compat for older templates (used `.on`) */
     .cb-box.on{background:#1db896;border-color:#1db896}
 
     .no-sb::-webkit-scrollbar{display:none}

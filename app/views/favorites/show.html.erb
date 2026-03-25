@@ -40,8 +40,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
 <canvas id="aurora"></canvas>
 
 <div class="relative z-10 flex flex-col min-h-screen">
-
-  <!-- HEADER -->
   <header class="glass-hdr sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 lg:py-4">
     <div class="flex items-center gap-2 cursor-pointer flex-shrink-0" onclick="window.location.href='/'">
       <svg width="110" height="30" viewBox="0 0 240 60" fill="none">
@@ -85,8 +83,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
       </button>
     </div>
   </header>
-
-  <!-- Top bar -->
   <div class="glass-hdr sticky top-0 z-10 flex items-center gap-3 px-4 sm:px-6 lg:px-8 py-3 lg:py-4">
     <button onclick="window.location.href='/'"
       class="w-9 h-9 rounded-[11px] border border-white/10 bg-white/[.04] text-tx2 flex items-center justify-center flex-shrink-0 transition-all hover:border-tl hover:text-tl">
@@ -97,8 +93,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
       <div class="text-tx3 mt-0.5" id="fav-count" style="font-size:clamp(10px,1.1vw,12px)"><%= @favorites.count %> отель сохранен</div>
     </div>
   </div>
-
-  <!-- Hotels grid -->
   <div class="px-4 sm:px-6 lg:px-8 xl:px-10 pt-4 pb-10 hotels-grid" id="favorites-grid">
     <% if @favorites.any? %>
       <% @favorites.each do |favorite| %>
@@ -154,7 +148,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
 </div>
 
 <script>
-/* ── AURORA ── */
 (function(){
   const c=document.getElementById('aurora'),ctx=c.getContext('2d');
   let W,H,t=0;
