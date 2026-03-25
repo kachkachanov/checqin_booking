@@ -149,9 +149,16 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
         <% if current_user.supervisor? %>
           <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/supervisor'">Супервайзор</span>
         <% end %>
-        <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/users/sign_out'">Выйти</span>
+        <%= button_to "Выйти",
+                      destroy_user_session_path,
+                      method: :delete,
+                      class: "hover:text-tl cursor-pointer transition-colors bg-transparent border-none p-0 font-semibold text-sm",
+                      form: { data: { turbo: false } } %>
       <% else %>
-        <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/users/sign_in'">Войти</span>
+        <%= link_to "Войти",
+                    new_user_registration_path,
+                    class: "hover:text-tl cursor-pointer transition-colors text-sm font-semibold text-tx2",
+                    data: { turbo: false } %>
       <% end %>
     </nav>
 
@@ -324,13 +331,27 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
       <button onclick="closeMenu()" class="w-8 h-8 rounded-[9px] border border-white/10 bg-white/[.04] text-tx2 text-base flex items-center justify-center transition-all hover:border-tl hover:text-tl">✕</button>
     </div>
     <div class="flex-1 overflow-y-auto">
-      <div onclick="window.location.href='<%= new_user_session_path %>'" class="flex items-center justify-between px-5 py-4 border-b border-white/8 cursor-pointer hover:bg-tl/5 transition-colors">
-        <div class="flex items-center gap-3.5">
-          <div class="w-10 h-10 rounded-xl bg-tl/10 border border-tl/20 flex items-center justify-center text-tl"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></div>
-          <span class="text-sm font-semibold text-tx"><% if user_signed_in? %><%= current_user.email %><% else %>Войти<% end %></span>
-        </div>
-        <svg class="w-4 h-4 text-tx3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-      </div>
+      <% if user_signed_in? %>
+        <%= link_to '/',
+                    class: "flex items-center justify-between px-5 py-4 border-b border-white/8 cursor-pointer hover:bg-tl/5 transition-colors",
+                    data: { turbo: false } do %>
+          <div class="flex items-center gap-3.5">
+            <div class="w-10 h-10 rounded-xl bg-tl/10 border border-tl/20 flex items-center justify-center text-tl"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></div>
+            <span class="text-sm font-semibold text-tx"><%= current_user.email %></span>
+          </div>
+          <svg class="w-4 h-4 text-tx3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        <% end %>
+      <% else %>
+        <%= link_to new_user_registration_path,
+                    class: "flex items-center justify-between px-5 py-4 border-b border-white/8 cursor-pointer hover:bg-tl/5 transition-colors",
+                    data: { turbo: false } do %>
+          <div class="flex items-center gap-3.5">
+            <div class="w-10 h-10 rounded-xl bg-tl/10 border border-tl/20 flex items-center justify-center text-tl"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></div>
+            <span class="text-sm font-semibold text-tx">Войти</span>
+          </div>
+          <svg class="w-4 h-4 text-tx3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        <% end %>
+      <% end %>
       <div class="flex items-center justify-between px-5 py-4 border-b border-white/8 cursor-pointer hover:bg-tl/5 transition-colors">
         <div class="flex items-center gap-3.5">
           <div class="w-10 h-10 rounded-xl bg-tl/10 border border-tl/20 flex items-center justify-center text-tl"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>

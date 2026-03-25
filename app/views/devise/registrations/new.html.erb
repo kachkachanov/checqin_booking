@@ -1,0 +1,119 @@
+<%# Custom "Register" window (Devise). Mirrors the provided HTML design %>
+<div class="relative z-10 flex flex-col min-h-screen bg-bg text-tx">
+  <canvas id="aurora"></canvas>
+
+  <header class="glass-hdr sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6 lg:px-10 py-3">
+    <%= link_to root_path, class: "cursor-pointer", data: { turbo: false } do %>
+      <svg width="108" height="29" viewBox="0 0 240 60" fill="none">
+        <path d="M44 10 C24 10 8 21 8 35 C8 49 24 56 44 56" stroke="#1db896" stroke-width="7" stroke-linecap="round" fill="none"/>
+        <ellipse cx="9" cy="35" rx="7" ry="9" fill="#1db896"/>
+        <path d="M9 44 L6 53 L9 49 L12 53 Z" fill="#1db896"/>
+        <circle cx="9" cy="33" r="3" fill="#050f0c"/>
+        <rect x="8" y="35.5" width="2" height="4" rx="1" fill="#050f0c"/>
+        <path d="M56 12 L56 48 M56 30 Q63 21 73 30 L73 48" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M82 36 Q82 24 93 24 Q103 24 103 33 L82 33 M82 36 Q82 48 93 48" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M130 28 Q120 20 111 33 Q102 46 114 47 Q122 47 130 40" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M150 24 Q137 24 137 35 Q137 47 150 47 Q163 47 163 35 Q163 28 158 25 M161 44 L170 54" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="178" cy="18" r="4" fill="#1db896"/>
+        <line x1="178" y1="27" x2="178" y2="48" stroke="#1db896" stroke-width="5.5" stroke-linecap="round"/>
+        <path d="M188 48 L188 27 Q188 27 198 38 Q208 48 208 48 L208 27" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+    <% end %>
+
+    <div class="text-xs text-tx3 hidden sm:block">
+      Уже есть аккаунт?
+      <%= link_to "Войти",
+                  new_user_session_path,
+                  class: "text-tl font-semibold cursor-pointer hover:underline",
+                  data: { turbo: false } %>
+    </div>
+  </header>
+
+  <main class="flex-1 flex items-center justify-center px-4 py-10 lg:py-14">
+    <div class="w-full max-w-[480px] mx-auto">
+      <div class="glass rounded-[26px] p-6 sm:p-8 shadow-[0_28px_80px_rgba(0,0,0,.5)]">
+        <div class="mb-6">
+          <h2 class="font-serif text-tx mb-1.5" style="font-size:clamp(28px,3vw,36px)">Создайте аккаунт</h2>
+          <p class="text-tx2 text-sm" style="line-height:1.4">Чтобы сохранять избранное и управлять данными бронирований.</p>
+        </div>
+
+        <% if resource.errors.any? %>
+          <div class="mb-4 px-4 py-3 rounded-[11px] text-sm font-medium flex items-center gap-2" style="background:rgba(242,79,107,.1);border:1px solid rgba(242,79,107,.25);color:#f87171">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+            <div>
+              <% resource.errors.full_messages.each do |msg| %>
+                <div><%= msg %></div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "w-full" }) do |f| %>
+          <div class="mb-1.5 text-[9px] font-extrabold tracking-[1.8px] uppercase text-tx3">Электронная почта</div>
+          <div class="relative mb-4">
+            <%= f.email_field :email, autofocus: true, autocomplete: "email", placeholder: "example@mail.ru", class: "f-inp" %>
+          </div>
+
+          <div class="mb-1.5 text-[9px] font-extrabold tracking-[1.8px] uppercase text-tx3">Пароль</div>
+          <div class="relative mb-3">
+            <%= f.password_field :password, autocomplete: "new-password", placeholder: "Минимум 8 символов", class: "f-inp" %>
+          </div>
+
+          <div class="mb-1.5 text-[9px] font-extrabold tracking-[1.8px] uppercase text-tx3">Подтверждение пароля</div>
+          <div class="relative mb-6">
+            <%= f.password_field :password_confirmation, autocomplete: "new-password", placeholder: "Повторите пароль", class: "f-inp" %>
+          </div>
+
+          <%= f.submit "Зарегистрироваться",
+                       class: "w-full py-4 rounded-[16px] border-none text-bg font-extrabold text-sm tracking-wide flex items-center justify-center gap-2 cursor-pointer transition-all",
+                       style: "background:linear-gradient(135deg,#1db896,#15a07f,#0d7a60);box-shadow:0 8px 30px rgba(29,184,150,.35)" %>
+        <% end %>
+
+        <div class="text-center mt-5 text-sm text-tx3">
+          Нажимая «Зарегистрироваться», вы соглашаетесь с
+          <span class="text-tl cursor-pointer hover:underline">условиями</span> и
+          <span class="text-tl cursor-pointer hover:underline">политикой конфиденциальности</span>.
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  // Aurora background (lightweight version, no tabs/validation)
+  (function () {
+    const c = document.getElementById('aurora');
+    if (!c) return;
+    const ctx = c.getContext('2d');
+    let W, H, t = 0;
+    const orbs = [
+      { x: 0.15, y: 0.25, r: 0.4, col: 'rgba(29,184,150,.15)', sp: 0.0003 },
+      { x: 0.85, y: 0.15, r: 0.32, col: 'rgba(29,184,150,.10)', sp: 0.0005 },
+      { x: 0.50, y: 0.80, r: 0.38, col: 'rgba(13,122,96,.12)', sp: 0.0002 },
+      { x: 0.90, y: 0.70, r: 0.28, col: 'rgba(29,184,150,.09)', sp: 0.0006 }
+    ];
+    function resize() { W = c.width = window.innerWidth; H = c.height = window.innerHeight; }
+    resize();
+    window.addEventListener('resize', resize);
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      orbs.forEach(o => {
+        const ox = W * (o.x + 0.07 * Math.sin(t * o.sp * 3));
+        const oy = H * (o.y + 0.05 * Math.cos(t * o.sp * 2));
+        const r = Math.min(W, H) * o.r;
+        const g = ctx.createRadialGradient(ox, oy, 0, ox, oy, r);
+        g.addColorStop(0, o.col);
+        g.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(ox, oy, r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      t++;
+      requestAnimationFrame(draw);
+    }
+    draw();
+  })();
+</script>

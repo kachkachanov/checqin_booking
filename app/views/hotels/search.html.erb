@@ -69,9 +69,16 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
         <% if current_user.supervisor? %>
           <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/supervisor'">Супервайзор</span>
         <% end %>
-        <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/users/sign_out'">Выйти</span>
+        <%= button_to "Выйти",
+                      destroy_user_session_path,
+                      method: :delete,
+                      class: "hover:text-tl cursor-pointer transition-colors bg-transparent border-none p-0 font-semibold text-sm",
+                      form: { data: { turbo: false } } %>
       <% else %>
-        <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/users/sign_in'">Войти</span>
+        <%= link_to "Войти",
+                    new_user_session_path,
+                    class: "hover:text-tl cursor-pointer transition-colors text-sm font-semibold text-tx2",
+                    data: { turbo: false } %>
       <% end %>
     </nav>
     <div class="flex items-center gap-2">
