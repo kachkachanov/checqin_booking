@@ -47,8 +47,26 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
             </svg>
             <div>
-              <% resource.errors.full_messages.each do |msg| %>
-                <div><%= msg %></div>
+              <% resource.errors.each do |error| %>
+                <% translated_message = case [error.attribute, error.type]
+                  when [:email, :blank]
+                    "Введите электронную почту"
+                  when [:email, :taken]
+                    "Пользователь с такой почтой уже существует"
+                  when [:email, :invalid]
+                    "Введите электронную почту в правильном формате"
+                  when [:password, :blank]
+                    "Введите пароль"
+                  when [:password, :too_short]
+                    "Пароль должен содержать минимум 6 символов"
+                  when [:password_confirmation, :confirmation]
+                    "Подтверждение пароля не совпадает"
+                  when [:password_confirmation, :blank]
+                    "Подтвердите пароль"
+                  else
+                    error.full_message
+                  end %>
+                <div><%= translated_message %></div>
               <% end %>
             </div>
           </div>
@@ -63,7 +81,7 @@
 
           <div class="mb-1.5 text-[9px] font-extrabold tracking-[1.8px] uppercase text-tx3">Пароль</div>
           <div class="relative mb-3">
-            <%= f.password_field :password, autocomplete: "new-password", placeholder: "Минимум 8 символов", class: "f-inp" %>
+            <%= f.password_field :password, autocomplete: "new-password", placeholder: "Минимум 6 символов", class: "f-inp" %>
           </div>
 
           <div class="mb-1.5 text-[9px] font-extrabold tracking-[1.8px] uppercase text-tx3">Подтверждение пароля</div>

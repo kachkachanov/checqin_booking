@@ -1,0 +1,50 @@
+<style>
+.fav-heart-btn{display:grid;place-items:center;padding:0;line-height:0}
+.fav-heart-btn svg{display:block}
+#fav-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);z-index:400;opacity:0;transition:all .35s ease;pointer-events:none;padding:12px 20px;border-radius:14px;font-size:13px;font-weight:600;background:rgba(13,28,24,.95);border:1px solid rgba(29,184,150,.35);color:#e8f5f1;backdrop-filter:blur(12px);box-shadow:0 8px 32px rgba(0,0,0,.4)}
+#fav-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+<div id="fav-toast" role="status"></div>
+<script>
+function showFavToast(msg){
+  const t=document.getElementById('fav-toast');
+  if(!t)return;
+  t.textContent=msg;
+  t.classList.add('show');
+  clearTimeout(window._favToastTm);
+  window._favToastTm=setTimeout(()=>t.classList.remove('show'),2800);
+}
+function updateFavButton(btn,favorited){
+  const svg=btn&&btn.querySelector('svg');
+  if(!svg)return;
+  svg.setAttribute('fill',favorited?'#f87171':'none');
+  svg.setAttribute('stroke',favorited?'#f87171':'#9bbdb5');
+  btn.title=favorited?'Убрать из избранного':'В избранное';
+}
+function toggleFav(id){
+  const token=document.querySelector('meta[name="csrf-token"]')?.content;
+  fetch('/favorites/toggle/'+id,{
+    method:'POST',
+    headers:{'X-CSRF-Token':token,'Accept':'application/json','Content-Type':'application/json'}
+  })
+  .then(async r=>{
+    const data=await r.json().catch(()=>({}));
+    if(r.status===401){
+      showFavToast(data.message||'Войдите, чтобы добавить в избранное');
+      setTimeout(()=>{window.location.href=(data.login_url||'/users/sign_in')+'?return_to='+encodeURIComponent(window.location.pathname+window.location.search);},900);
+      return null;
+    }
+    if(!r.ok)throw new Error(data.message||'Ошибка');
+    return data;
+  })
+  .then(data=>{
+    if(!data)return;
+    document.querySelectorAll('#hf-'+id).forEach(btn=>updateFavButton(btn,data.favorited));
+    document.querySelectorAll('[data-fav-label-for="'+id+'"]').forEach(el=>{
+      el.textContent=data.favorited?'♥ В избранном':'♡ В избранное';
+    });
+    if(data.message)showFavToast(data.message);
+  })
+  .catch(()=>showFavToast('Не удалось обновить избранное'));
+}
+</script>

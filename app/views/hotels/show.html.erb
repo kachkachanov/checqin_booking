@@ -1,2 +1,254 @@
-<h1>Hotels#show</h1>
-<p>Find me in app/views/hotels/show.html.erb</p>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="csrf-token" content="<%= form_authenticity_token %>">
+<title><%= @hotel.name %> — Checqin</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+tailwind.config={theme:{extend:{
+  colors:{tl:'#1db896',tl2:'#15a07f',bg:'#050f0c',bg2:'#091410',bg3:'#0d1c18',bg4:'#122720',tx:'#e8f5f1',tx2:'#9bbdb5',tx3:'#5a8078'},
+  fontFamily:{serif:['"DM Serif Display"','serif'],sans:['"Plus Jakarta Sans"','sans-serif']},
+  keyframes:{drawerIn:{from:{transform:'translateX(100%)'},to:{transform:'translateX(0)'}}},
+  animation:{drawerIn:'drawerIn .28s cubic-bezier(.32,0,.15,1)'},
+}}}
+</script>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
+#aurora{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5}
+.glass-hdr{background:rgba(5,15,12,.82);backdrop-filter:blur(20px);border-bottom:1px solid rgba(29,184,150,.15)}
+.glass{background:rgba(13,28,24,.88);backdrop-filter:blur(20px);border:1px solid rgba(29,184,150,.18)}
+.hotel-hero{position:relative;height:clamp(220px,40vw,420px);overflow:hidden;background:#122720}
+.hotel-hero img{width:100%;height:100%;object-fit:cover;display:block}
+.amenity{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);font-size:12px;font-weight:600;color:#9bbdb5}
+.bk-inp{width:100%;padding:12px 14px;border:1.5px solid rgba(255,255,255,.12);border-radius:12px;background:rgba(255,255,255,.05);color:#e8f5f1;font-family:inherit;font-size:14px;outline:none}
+.bk-inp:focus{border-color:#1db896;box-shadow:0 0 0 3px rgba(29,184,150,.13)}
+.room-pick{border:1.5px solid rgba(255,255,255,.08);cursor:pointer;transition:all .2s}
+.room-pick.selected{border-color:#1db896;background:rgba(29,184,150,.08)}
+.room-pick.unavailable{opacity:.45;pointer-events:none}
+</style>
+</head>
+<body class="bg-bg min-h-screen text-tx overflow-x-hidden">
+<%= render 'shared/flash_notice' %>
+<canvas id="aurora"></canvas>
+
+<div class="relative z-10 flex flex-col min-h-screen">
+  <header class="glass-hdr sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3">
+    <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.href='/'">
+      <svg width="100" height="27" viewBox="0 0 240 60" fill="none"><path d="M44 10 C24 10 8 21 8 35 C8 49 24 56 44 56" stroke="#1db896" stroke-width="7" stroke-linecap="round" fill="none"/><ellipse cx="9" cy="35" rx="7" ry="9" fill="#1db896"/></svg>
+    </div>
+    <div class="flex items-center gap-2">
+      <button type="button" onclick="window.location.href='/favorites'" class="fav-heart-btn w-9 h-9 rounded-xl border border-white/10 bg-white/[.04] text-tx2">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+      </button>
+      <button type="button" onclick="openMenu()" class="w-9 h-9 rounded-xl border border-white/10 bg-white/[.04] flex items-center justify-center text-tx2">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="hotel-hero">
+    <% if @hotel.photos.attached? %>
+      <img src="<%= url_for(@hotel.photos.first) %>" alt="<%= @hotel.name %>">
+    <% else %>
+      <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:80px;background:linear-gradient(135deg,#122720,#0d1c18)">🏨</div>
+    <% end %>
+    <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(5,15,12,.92) 0%,transparent 55%)"></div>
+    <button type="button" onclick="history.back()" class="absolute top-4 left-4 w-10 h-10 rounded-xl border border-white/15 bg-black/40 backdrop-blur flex items-center justify-center text-tx z-10">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+    <div style="position:absolute;top:16px;right:16px;z-index:10">
+      <%= render 'shared/hotel_fav_button', hotel: @hotel %>
+    </div>
+    <div class="absolute bottom-0 left-0 right-0 p-5 sm:p-8">
+      <div class="inline-block px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wide mb-2" style="background:rgba(29,184,150,.9);color:#050f0c"><%= @hotel.hotel_type %></div>
+      <h1 class="font-serif text-tx leading-tight mb-1" style="font-size:clamp(24px,4vw,40px)"><%= @hotel.name %></h1>
+      <div class="flex flex-wrap items-center gap-3 text-tx2 text-sm">
+        <span class="flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-tl" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
+          <%= @hotel.full_address %>
+        </span>
+        <% r = @hotel.average_rating.to_i.clamp(0, 5) %>
+        <span style="color:#f5c842"><%= "★" * r %><%= "☆" * (5 - r) %></span>
+        <span class="px-2 py-0.5 rounded-lg bg-tl/20 text-tl font-bold text-xs"><%= @hotel.average_rating %></span>
+      </div>
+    </div>
+  </div>
+
+  <main class="px-4 sm:px-6 lg:px-10 py-6 lg:py-8 max-w-5xl mx-auto w-full">
+    <div class="grid lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-2 space-y-6">
+        <section class="glass rounded-2xl p-5 sm:p-6">
+          <h2 class="font-serif text-tx text-xl mb-3">Об отеле</h2>
+          <p class="text-tx2 text-sm leading-relaxed">
+            <%= @hotel.description.presence || "Уютный #{@hotel.hotel_type.downcase} в #{@hotel.city}. Идеально для деловых поездок и отдыха. На территории — круглосуточная стойка регистрации, бесплатный Wi‑Fi и комфортные номера." %>
+          </p>
+          <div class="flex flex-wrap gap-2 mt-4">
+            <span class="amenity">📶 Wi‑Fi</span>
+            <span class="amenity">🅿️ Парковка</span>
+            <span class="amenity">🍳 Завтрак</span>
+            <span class="amenity">❄️ Кондиционер</span>
+            <% if @hotel.chain.present? && @hotel.chain != 'Без сети' %>
+              <span class="amenity">🏷️ <%= @hotel.chain %></span>
+            <% end %>
+          </div>
+        </section>
+
+        <section class="glass rounded-2xl p-5 sm:p-6">
+          <h2 class="font-serif text-tx text-xl mb-2">Номера</h2>
+          <p class="text-tx3 text-xs mb-4">Супервайзор указал вместимость и цену за ночь. Свободные номера на выбранные даты отмечены ниже.</p>
+          <% if @rooms.any? %>
+            <div class="space-y-3" id="rooms-list">
+              <% bookable_ids = @bookable_rooms.map(&:id) %>
+              <% @rooms.each do |room| %>
+                <% bookable = bookable_ids.include?(room.id) && room.capacity >= @guests %>
+                <div class="room-pick flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl bg-white/[.03] <%= bookable ? '' : 'unavailable' %> <%= 'selected' if @selected_room&.id == room.id %>"
+                     data-room-id="<%= room.id %>"
+                     data-room-price="<%= room.price_per_night.to_i %>"
+                     data-room-capacity="<%= room.capacity %>"
+                     onclick="<%= bookable ? "selectRoom(#{room.id}, #{room.price_per_night.to_i}, #{room.capacity})" : '' %>">
+                  <div>
+                    <div class="font-bold text-tx text-sm flex items-center gap-2">
+                      <%= room.name %>
+                      <% if bookable %>
+                        <span class="text-[10px] font-bold uppercase tracking-wide text-tl bg-tl/10 px-2 py-0.5 rounded-md">Свободен</span>
+                      <% else %>
+                        <span class="text-[10px] font-bold uppercase tracking-wide text-tx3 bg-white/5 px-2 py-0.5 rounded-md">Занят / мало мест</span>
+                      <% end %>
+                    </div>
+                    <div class="text-tx3 text-xs mt-1"><%= room.room_type %> · до <%= room.capacity %> гостей · <%= room.area.to_i %> м²</div>
+                    <% if room.description.present? %>
+                      <p class="text-tx2 text-xs mt-2 leading-relaxed"><%= room.description %></p>
+                    <% end %>
+                  </div>
+                  <div class="text-right flex-shrink-0">
+                    <div class="font-serif text-tx text-lg"><%= format_hotel_price(room.price_per_night) %></div>
+                    <div class="text-tx3 text-xs">за ночь</div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <p class="text-tx2 text-sm">Стандартный номер — от <%= format_hotel_price(@hotel.display_price) %> за ночь. Уточняйте наличие у отеля.</p>
+            <div class="mt-3 p-4 rounded-xl border border-white/8 bg-white/[.03]">
+              <div class="font-bold text-tx text-sm">Стандартный номер</div>
+              <div class="text-tx3 text-xs mt-1">Двуспальная кровать · до 2 гостей</div>
+              <div class="font-serif text-tx text-lg mt-2"><%= format_hotel_price(@hotel.display_price) %> <span class="text-tx3 text-xs font-sans">/ ночь</span></div>
+            </div>
+          <% end %>
+        </section>
+
+        <% if @hotel.phone.present? || @hotel.email.present? %>
+          <section class="glass rounded-2xl p-5 sm:p-6">
+            <h2 class="font-serif text-tx text-xl mb-3">Контакты</h2>
+            <% if @hotel.phone.present? %><p class="text-tx2 text-sm">Телефон: <span class="text-tx font-semibold"><%= @hotel.phone %></span></p><% end %>
+            <% if @hotel.email.present? %><p class="text-tx2 text-sm mt-1">Email: <span class="text-tx font-semibold"><%= @hotel.email %></span></p><% end %>
+          </section>
+        <% end %>
+      </div>
+
+      <aside class="lg:col-span-1">
+        <div class="glass rounded-2xl p-5 sm:p-6 sticky top-24">
+          <% min_in = @hotel.min_check_in_date %>
+          <% max_out = @hotel.max_check_out_date %>
+          <% if user_signed_in? %>
+            <%= form_with model: @booking, url: hotel_bookings_path(@hotel), method: :post, local: true, html: { id: 'booking-form', class: 'space-y-3' } do |f| %>
+              <div class="text-tx3 text-xs font-bold uppercase tracking-widest mb-1">Бронирование</div>
+              <div>
+                <label class="text-tx3 text-xs block mb-1">Заезд</label>
+                <%= f.date_field :check_in, class: 'bk-inp', min: min_in, max: max_out, required: true, onchange: 'recalcBooking()' %>
+              </div>
+              <div>
+                <label class="text-tx3 text-xs block mb-1">Выезд</label>
+                <%= f.date_field :check_out, class: 'bk-inp', min: min_in, max: max_out, required: true, onchange: 'recalcBooking()' %>
+              </div>
+              <div>
+                <label class="text-tx3 text-xs block mb-1">Гости</label>
+                <%= f.number_field :guests, class: 'bk-inp', min: 1, max: 20, required: true, value: @guests, onchange: 'recalcBooking()' %>
+              </div>
+              <%= f.hidden_field :room_id, id: 'booking_room_id', value: @selected_room&.id %>
+              <div class="text-sm text-tx2 pt-1">Период доступности (супервайзор)</div>
+              <div class="text-tx font-semibold text-sm"><%= @hotel.availability_label %></div>
+              <div class="border-t border-white/8 pt-3 mt-2">
+                <div class="flex justify-between text-sm text-tx2 mb-1"><span id="bk-nights-label"><%= [@booking.nights, 1].max %> ноч.</span><span id="bk-night-price"></span></div>
+                <div class="font-serif text-tx" style="font-size:clamp(24px,2.5vw,32px)" id="bk-total"><%= format_hotel_price(@hotel.display_price) %></div>
+                <div class="text-tx3 text-xs">итого</div>
+              </div>
+              <%= f.submit 'Забронировать', class: 'w-full py-4 rounded-2xl border-none text-bg font-extrabold text-sm cursor-pointer mt-2', style: 'background:linear-gradient(135deg,#1db896,#15a07f)' %>
+            <% end %>
+            <button type="button" data-fav-label-for="<%= @hotel.id %>" onclick="toggleFav(<%= @hotel.id %>)" class="w-full py-3 rounded-xl border border-white/10 bg-white/[.04] text-tx2 font-semibold text-sm hover:border-tl hover:text-tl transition-all mt-3">
+              <%= hotel_favorited?(@hotel) ? '♥ В избранном' : '♡ В избранное' %>
+            </button>
+          <% else %>
+            <div class="text-tx3 text-xs font-bold uppercase tracking-widest mb-1">от</div>
+            <div class="font-serif text-tx mb-1" style="font-size:clamp(28px,3vw,36px)"><%= format_hotel_price(@hotel.display_price) %></div>
+            <div class="text-tx3 text-sm mb-4">за ночь</div>
+            <div class="text-sm text-tx2 mb-1">Доступность</div>
+            <div class="text-tx font-semibold text-sm mb-5"><%= @hotel.availability_label %></div>
+            <%= link_to 'Войти, чтобы забронировать', new_user_session_path, class: 'block w-full py-4 rounded-2xl text-bg font-extrabold text-sm text-center mb-3', style: 'background:linear-gradient(135deg,#1db896,#15a07f)', data: { turbo: false } %>
+            <%= link_to 'Регистрация', new_user_registration_path, class: 'block w-full py-3 rounded-xl border border-white/10 text-tx2 font-semibold text-sm text-center', data: { turbo: false } %>
+          <% end %>
+        </div>
+      </aside>
+    </div>
+  </main>
+</div>
+
+<%= render 'shared/smart_panel' %>
+<%= render 'shared/favorite_scripts' %>
+
+<script>
+(function(){
+  const c=document.getElementById('aurora'),ctx=c.getContext('2d');let W,H,t=0;
+  const orbs=[{x:.2,y:.3,r:.38,col:'rgba(29,184,150,.18)',sp:.0003},{x:.8,y:.1,r:.3,col:'rgba(29,184,150,.12)',sp:.0005}];
+  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight}resize();
+  window.addEventListener('resize',resize);
+  function draw(){ctx.clearRect(0,0,W,H);orbs.forEach(o=>{const ox=W*o.x,oy=H*o.y,r=Math.min(W,H)*o.r,g=ctx.createRadialGradient(ox,oy,0,ox,oy,r);g.addColorStop(0,o.col);g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(ox,oy,r,0,Math.PI*2);ctx.fill()});t++;requestAnimationFrame(draw)}draw();
+})();
+
+const defaultPrice = <%= @hotel.display_price.to_i %>;
+const currencySymbol = '<%= CurrencyHelper::CURRENCIES[current_currency_code][:symbol] %>';
+const currencyRate = <%= CurrencyHelper::CURRENCIES[current_currency_code][:rate] %>;
+
+function formatPrice(amount){
+  return currencySymbol + Math.round(amount * currencyRate);
+}
+
+function selectRoom(id, price, capacity){
+  document.getElementById('booking_room_id').value = id;
+  document.querySelectorAll('.room-pick').forEach(el=>{
+    el.classList.toggle('selected', el.dataset.roomId == id);
+  });
+  window._selectedNightPrice = price;
+  recalcBooking();
+}
+
+function recalcBooking(){
+  const ci = document.getElementById('booking_check_in')?.value;
+  const co = document.getElementById('booking_check_out')?.value;
+  if(!ci || !co) return;
+  const d1 = new Date(ci), d2 = new Date(co);
+  let nights = Math.round((d2 - d1) / 86400000);
+  if(nights < 1) nights = 1;
+  const nightPrice = window._selectedNightPrice || defaultPrice;
+  document.getElementById('bk-nights-label').textContent = nights + ' ноч.';
+  document.getElementById('bk-night-price').textContent = formatPrice(nightPrice) + ' / ночь';
+  document.getElementById('bk-total').textContent = formatPrice(nightPrice * nights);
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  const first = document.querySelector('.room-pick:not(.unavailable)');
+  if(first && !document.getElementById('booking_room_id').value){
+    selectRoom(parseInt(first.dataset.roomId), parseInt(first.dataset.roomPrice), parseInt(first.dataset.roomCapacity));
+  } else {
+    window._selectedNightPrice = defaultPrice;
+    recalcBooking();
+  }
+});
+</script>
+</body>
+</html>

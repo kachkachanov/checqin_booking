@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Бронирование — Checqin</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<script>tailwind.config={theme:{extend:{colors:{tl:'#1db896',bg:'#050f0c',bg3:'#0d1c18',tx:'#e8f5f1',tx2:'#9bbdb5',tx3:'#5a8078'},fontFamily:{serif:['"DM Serif Display"','serif'],sans:['"Plus Jakarta Sans"','sans-serif']}}}}</script>
+<style>body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}.glass{background:rgba(13,28,24,.88);border:1px solid rgba(29,184,150,.18);border-radius:24px}</style>
+</head>
+<body class="bg-bg min-h-screen text-tx">
+<%= render 'shared/flash_notice' %>
+<div class="relative z-10 max-w-lg mx-auto px-4 py-10">
+  <div class="glass p-8 text-center">
+    <div class="w-16 h-16 rounded-2xl bg-tl/10 border border-tl/25 flex items-center justify-center text-3xl mx-auto mb-5">✓</div>
+    <h1 class="font-serif text-2xl mb-2">Бронирование подтверждено</h1>
+    <p class="text-tx2 text-sm mb-6">Номер <%= @booking.id %> · <%= l(@booking.created_at, format: '%d.%m.%Y %H:%M') %></p>
+    <div class="text-left space-y-3 mb-6 p-4 rounded-xl bg-white/[.03] border border-white/8">
+      <div class="flex justify-between text-sm"><span class="text-tx3">Отель</span><span class="font-semibold"><%= @hotel.name %></span></div>
+      <div class="flex justify-between text-sm"><span class="text-tx3">Адрес</span><span class="font-semibold text-right"><%= @hotel.full_address %></span></div>
+      <div class="flex justify-between text-sm"><span class="text-tx3">Номер</span><span class="font-semibold"><%= @booking.room_name %></span></div>
+      <div class="flex justify-between text-sm"><span class="text-tx3">Заезд</span><span class="font-semibold"><%= l(@booking.check_in, format: '%d.%m.%Y') %></span></div>
+      <div class="flex justify-between text-sm"><span class="text-tx3">Выезд</span><span class="font-semibold"><%= l(@booking.check_out, format: '%d.%m.%Y') %></span></div>
+      <div class="flex justify-between text-sm"><span class="text-tx3">Гости</span><span class="font-semibold"><%= @booking.guests %></span></div>
+      <div class="flex justify-between text-sm"><span class="text-tx3">Ночей</span><span class="font-semibold"><%= @booking.nights %></span></div>
+      <div class="flex justify-between text-sm border-t border-white/8 pt-3 mt-2"><span class="text-tx3">Итого</span><span class="font-serif text-lg text-tl"><%= format_hotel_price(@booking.total_price) %></span></div>
+    </div>
+    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+      <%= link_to 'Все бронирования', bookings_path, class: 'px-5 py-3 rounded-xl border border-white/10 text-tx2 font-semibold text-sm text-center' %>
+      <%= link_to 'На главную', root_path, class: 'px-5 py-3 rounded-xl text-bg font-bold text-sm text-center', style: 'background:linear-gradient(135deg,#1db896,#15a07f)' %>
+    </div>
+  </div>
+</div>
+</body>
+</html>

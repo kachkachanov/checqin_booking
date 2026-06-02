@@ -1,0 +1,231 @@
+<div class="fixed inset-0 z-[200] hidden" id="mover">
+  <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeMenu()"></div>
+  <div class="absolute right-0 top-0 bottom-0 w-[290px] sm:w-[340px] bg-bg3 border-l border-white/8 flex flex-col animate-drawerIn">
+    <div class="flex items-center justify-between p-5 border-b border-white/8 flex-shrink-0">
+      <button type="button" id="drawer-back" onclick="showDrawerPanel('main')" class="hidden w-8 h-8 rounded-[9px] border border-white/10 bg-white/[.04] text-tx2 flex items-center justify-center hover:border-tl hover:text-tl">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+      </button>
+      <div id="drawer-title" class="text-sm font-bold text-tx flex-1 text-center">Меню</div>
+      <button type="button" onclick="closeMenu()" class="w-8 h-8 rounded-[9px] border border-white/10 bg-white/[.04] text-tx2 text-base flex items-center justify-center hover:border-tl hover:text-tl">✕</button>
+    </div>
+
+    <div class="flex-1 overflow-y-auto relative">
+      <%# ——— Главное меню ——— %>
+      <div id="drawer-panel-main" class="drawer-panel">
+        <% if user_signed_in? %>
+          <button type="button" onclick="showDrawerPanel('account')" class="w-full flex items-center justify-between px-5 py-4 border-b border-white/8 hover:bg-tl/5 transition-colors text-left">
+            <div class="flex items-center gap-3.5 min-w-0">
+              <div class="w-10 h-10 rounded-xl bg-tl/10 border border-tl/20 flex items-center justify-center text-tl flex-shrink-0">
+                <svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+              </div>
+              <div class="min-w-0">
+                <div class="text-sm font-semibold text-tx">Личный кабинет</div>
+                <div class="text-xs text-tx3 truncate"><%= current_user.email %></div>
+              </div>
+            </div>
+            <svg class="w-4 h-4 text-tx3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+          </button>
+          <% if current_user.supervisor? %>
+            <%= link_to supervisor_root_path, class: "flex items-center justify-between px-5 py-4 border-b border-white/8 hover:bg-tl/5 transition-colors", data: { turbo: false } do %>
+              <div class="flex items-center gap-3.5">
+                <div class="w-10 h-10 rounded-xl bg-tl/10 border border-tl/20 flex items-center justify-center text-tl"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M5 21V7l8-4 6 3v15"/></svg></div>
+                <span class="text-sm font-semibold text-tx">Кабинет супервайзора</span>
+              </div>
+              <svg class="w-4 h-4 text-tx3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            <% end %>
+          <% end %>
+        <% else %>
+          <%= link_to new_user_session_path, class: "flex items-center justify-between px-5 py-4 border-b border-white/8 hover:bg-tl/5 transition-colors", data: { turbo: false } do %>
+            <div class="flex items-center gap-3.5">
+              <div class="w-10 h-10 rounded-xl bg-tl/10 border border-tl/20 flex items-center justify-center text-tl"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></div>
+              <span class="text-sm font-semibold text-tx">Войти</span>
+            </div>
+            <svg class="w-4 h-4 text-tx3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+          <% end %>
+          <%= link_to new_user_registration_path(account_type: :supervisor), class: "flex items-center justify-between px-5 py-4 border-b border-white/8 hover:bg-tl/5 transition-colors", data: { turbo: false } do %>
+            <div class="flex items-center gap-3.5">
+              <div class="w-10 h-10 rounded-xl bg-tl/10 border border-tl/20 flex items-center justify-center text-tl"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M5 21V7l8-4 6 3v15"/></svg></div>
+              <span class="text-sm font-semibold text-tx">Стать супервайзором</span>
+            </div>
+            <svg class="w-4 h-4 text-tx3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+          <% end %>
+        <% end %>
+
+        <%= link_to favorites_path, class: "flex items-center justify-between px-5 py-4 border-b border-white/8 hover:bg-tl/5 transition-colors", data: { turbo: false } do %>
+          <div class="flex items-center gap-3.5">
+            <div class="w-10 h-10 rounded-xl bg-tl/10 border border-tl/20 flex items-center justify-center text-tl"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg></div>
+            <span class="text-sm font-semibold text-tx">Избранное</span>
+          </div>
+          <svg class="w-4 h-4 text-tx3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        <% end %>
+
+        <% if user_signed_in? %>
+          <%= link_to bookings_path, class: "flex items-center justify-between px-5 py-4 border-b border-white/8 hover:bg-tl/5 transition-colors", data: { turbo: false } do %>
+            <div class="flex items-center gap-3.5">
+              <div class="w-10 h-10 rounded-xl bg-tl/10 border border-tl/20 flex items-center justify-center text-tl"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
+              <span class="text-sm font-semibold text-tx">Мои бронирования</span>
+            </div>
+            <svg class="w-4 h-4 text-tx3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+          <% end %>
+        <% end %>
+
+        <button type="button" onclick="showDrawerPanel('help')" class="w-full flex items-center justify-between px-5 py-4 border-b border-white/8 hover:bg-tl/5 transition-colors text-left">
+          <div class="flex items-center gap-3.5">
+            <div class="w-10 h-10 rounded-xl bg-tl/10 border border-tl/20 flex items-center justify-center text-tl"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+            <span class="text-sm font-semibold text-tx">Помощь</span>
+          </div>
+          <svg class="w-4 h-4 text-tx3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        </button>
+
+        <button type="button" onclick="showDrawerPanel('currency')" class="w-full flex items-center justify-between px-5 py-4 border-b border-white/8 hover:bg-tl/5 transition-colors text-left">
+          <div class="flex items-center gap-3.5">
+            <div class="w-10 h-10 rounded-xl bg-tl/10 border border-tl/20 flex items-center justify-center text-tl"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+            <span class="text-sm font-semibold text-tx">Валюта</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-tx3" data-currency-label><%= current_currency_label %></span>
+            <svg class="w-4 h-4 text-tx3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+          </div>
+        </button>
+
+        <% if user_signed_in? %>
+          <div class="px-5 py-4 border-b border-white/8">
+            <%= button_to "Выйти", destroy_user_session_path, method: :delete,
+                          class: "w-full py-3 rounded-xl border border-white/10 bg-white/[.04] text-tx2 text-sm font-semibold cursor-pointer hover:border-tl hover:text-tl",
+                          form: { data: { turbo: false } } %>
+          </div>
+        <% end %>
+      </div>
+
+      <%# ——— Личный кабинет ——— %>
+      <div id="drawer-panel-account" class="drawer-panel hidden px-5 py-4">
+        <% if user_signed_in? %>
+          <div class="rounded-2xl border border-white/10 bg-white/[.04] p-4 mb-5">
+            <div class="text-[10px] font-extrabold tracking-[1.4px] uppercase text-tx3 mb-1">Электронная почта</div>
+            <div class="text-sm font-semibold text-tx break-all"><%= current_user.email %></div>
+          </div>
+          <div class="text-[10px] font-extrabold tracking-[1.4px] uppercase text-tx3 mb-3">Смена пароля</div>
+          <%= form_with model: current_user, url: account_password_path, method: :patch, local: true, html: { class: "flex flex-col gap-3" } do |f| %>
+            <div>
+              <%= f.label :current_password, "Текущий пароль", class: "block text-xs text-tx3 mb-1" %>
+              <%= f.password_field :current_password, autocomplete: "current-password", class: "drawer-inp w-full", placeholder: "••••••••" %>
+            </div>
+            <div>
+              <%= f.label :password, "Новый пароль", class: "block text-xs text-tx3 mb-1" %>
+              <%= f.password_field :password, autocomplete: "new-password", class: "drawer-inp w-full", placeholder: "Минимум 6 символов" %>
+            </div>
+            <div>
+              <%= f.label :password_confirmation, "Подтверждение", class: "block text-xs text-tx3 mb-1" %>
+              <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "drawer-inp w-full", placeholder: "Повторите пароль" %>
+            </div>
+            <%= f.submit "Сохранить пароль", class: "w-full py-3 rounded-xl border-none text-bg font-extrabold text-sm cursor-pointer mt-1", style: "background:linear-gradient(135deg,#1db896,#15a07f)" %>
+          <% end %>
+        <% else %>
+          <p class="text-sm text-tx2 mb-4">Войдите, чтобы открыть личный кабинет.</p>
+          <%= link_to "Войти", new_user_session_path, class: "block text-center py-3 rounded-xl text-bg font-extrabold text-sm", style: "background:linear-gradient(135deg,#1db896,#15a07f)", data: { turbo: false } %>
+        <% end %>
+      </div>
+
+      <%# ——— Валюта ——— %>
+      <div id="drawer-panel-currency" class="drawer-panel hidden px-5 py-4">
+        <p class="text-sm text-tx2 mb-4">Выберите валюту отображения цен (примерный пересчёт).</p>
+        <% CurrencyHelper::CURRENCIES.each do |code, info| %>
+          <button type="button" onclick="setCurrency('<%= code %>')"
+            class="w-full flex items-center justify-between px-4 py-3.5 mb-2 rounded-xl border transition-all text-left <%= current_currency_code == code ? 'border-tl bg-tl/10' : 'border-white/10 bg-white/[.04] hover:border-tl/40' %>">
+            <span class="text-sm font-semibold text-tx"><%= info[:label] %></span>
+            <% if current_currency_code == code %>
+              <svg class="w-4 h-4 text-tl" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <% end %>
+          </button>
+        <% end %>
+      </div>
+
+      <%# ——— Помощь / FAQ ——— %>
+      <div id="drawer-panel-help" class="drawer-panel hidden px-5 py-4">
+        <p class="text-sm text-tx2 mb-4">Частые вопросы и поддержка</p>
+        <div class="space-y-3">
+          <details class="rounded-xl border border-white/10 bg-white/[.04] overflow-hidden group">
+            <summary class="px-4 py-3 text-sm font-semibold text-tx cursor-pointer list-none flex justify-between items-center">
+              Как забронировать отель?
+              <span class="text-tx3 group-open:rotate-180 transition-transform">▾</span>
+            </summary>
+            <p class="px-4 pb-3 text-xs text-tx2 leading-relaxed">Найдите отель на главной или в поиске, откройте карточку и выберите даты. Бронирование в MVP находится в разработке — пока можно сохранять объекты в избранное.</p>
+          </details>
+          <details class="rounded-xl border border-white/10 bg-white/[.04] overflow-hidden group">
+            <summary class="px-4 py-3 text-sm font-semibold text-tx cursor-pointer list-none flex justify-between items-center">
+              Как добавить отель в избранное?
+              <span class="text-tx3 group-open:rotate-180 transition-transform">▾</span>
+            </summary>
+            <p class="px-4 pb-3 text-xs text-tx2 leading-relaxed">Нажмите иконку ♡ на карточке отеля. Нужна регистрация. Список — в разделе «Избранное».</p>
+          </details>
+          <details class="rounded-xl border border-white/10 bg-white/[.04] overflow-hidden group">
+            <summary class="px-4 py-3 text-sm font-semibold text-tx cursor-pointer list-none flex justify-between items-center">
+              Как стать супервайзором?
+              <span class="text-tx3 group-open:rotate-180 transition-transform">▾</span>
+            </summary>
+            <p class="px-4 pb-3 text-xs text-tx2 leading-relaxed">Зарегистрируйтесь как супервайзор через меню, добавьте объект и дождитесь модерации администратором.</p>
+          </details>
+          <details class="rounded-xl border border-white/10 bg-white/[.04] overflow-hidden group">
+            <summary class="px-4 py-3 text-sm font-semibold text-tx cursor-pointer list-none flex justify-between items-center">
+              Связаться с поддержкой
+              <span class="text-tx3 group-open:rotate-180 transition-transform">▾</span>
+            </summary>
+            <p class="px-4 pb-3 text-xs text-tx2 leading-relaxed">Напишите на <a href="mailto:support@checqin.local" class="text-tl font-semibold">support@checqin.local</a>. Обычно отвечаем в течение 1–2 рабочих дней.</p>
+          </details>
+        </div>
+      </div>
+    </div>
+
+    <div class="px-5 py-5 border-t border-white/8 text-center flex-shrink-0">
+      <div class="text-xs font-extrabold text-tl tracking-widest">CHECQIN</div>
+      <div class="text-[11px] text-tx3 mt-1">Умные путешествия.</div>
+    </div>
+  </div>
+</div>
+
+<style>
+.drawer-inp{width:100%;padding:12px 14px;border:1.5px solid rgba(255,255,255,.12);border-radius:12px;background:rgba(255,255,255,.05);color:#e8f5f1;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none}
+.drawer-inp:focus{border-color:#1db896;box-shadow:0 0 0 3px rgba(29,184,150,.13)}
+.drawer-panel.hidden{display:none}
+details summary::-webkit-details-marker{display:none}
+</style>
+
+<script>
+const DRAWER_TITLES={main:'Меню',account:'Личный кабинет',currency:'Валюта',help:'Помощь и FAQ'};
+function openMenu(){
+  showDrawerPanel('main');
+  document.getElementById('mover')?.classList.remove('hidden');
+}
+function closeMenu(){
+  document.getElementById('mover')?.classList.add('hidden');
+  showDrawerPanel('main');
+}
+function showDrawerPanel(name){
+  document.querySelectorAll('.drawer-panel').forEach(p=>p.classList.add('hidden'));
+  const panel=document.getElementById('drawer-panel-'+name);
+  if(panel) panel.classList.remove('hidden');
+  const title=document.getElementById('drawer-title');
+  if(title) title.textContent=DRAWER_TITLES[name]||'Меню';
+  const back=document.getElementById('drawer-back');
+  if(back) back.classList.toggle('hidden',name==='main');
+}
+function setCurrency(code){
+  const token=document.querySelector('meta[name="csrf-token"]')?.content;
+  fetch('<%= currency_path %>',{
+    method:'PATCH',
+    headers:{'X-CSRF-Token':token,'Content-Type':'application/json','Accept':'application/json'},
+    body:JSON.stringify({currency:code})
+  }).then(r=>r.json()).then(data=>{
+    if(data.ok){
+      document.querySelectorAll('[data-currency-label]').forEach(el=>{el.textContent=data.label});
+      showDrawerPanel('main');
+      location.reload();
+    }
+  }).catch(()=>{
+    const f=document.createElement('form');
+    f.method='POST';f.action='<%= currency_path %>';
+    f.innerHTML='<input type="hidden" name="_method" value="patch"><input type="hidden" name="authenticity_token" value="'+token+'"><input type="hidden" name="currency" value="'+code+'">';
+    document.body.appendChild(f);f.submit();
+  });
+}
+</script>

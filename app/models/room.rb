@@ -1,5 +1,6 @@
 class Room < ApplicationRecord
   belongs_to :hotel
+  has_many :bookings, dependent: :restrict_with_error
   has_many_attached :photos
 
   ROOM_TYPES = ['Стандарт', 'Люкс', 'Семейный', 'Эконом', 'Студия', 'Президентский']
@@ -21,5 +22,12 @@ class Room < ApplicationRecord
 
   def short_info
     "#{name} (#{room_type}, до #{capacity} чел.)"
+  end
+
+  def bookable_between?(check_in, check_out)
+    return false unless available?
+    return true if check_in.blank? || check_out.blank? || check_out <= check_in
+
+    !Booking.overlapping_for_room(id, check_in, check_out).exists?
   end
 end

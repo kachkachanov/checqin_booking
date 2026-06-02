@@ -24,6 +24,22 @@ class HotelsController < ApplicationController
 
   def show
     @rooms = @hotel.rooms.available.order(:price_per_night)
+    @guests = params[:guests].to_i
+    @guests = 2 if @guests < 1
+
+    min_in = @hotel.min_check_in_date
+    max_out = @hotel.max_check_out_date
+
+    @check_in = parse_date(params[:checkin]) || min_in
+    @check_out = parse_date(params[:checkout]) || (@check_in + 1.day)
+    @check_in = min_in if @check_in < min_in
+    @check_out = @check_in + 1.day if @check_out <= @check_in
+    @check_out = max_out if max_out && @check_out > max_out
+    @check_in = [@check_out - 1.day, min_in].max if @check_out <= @check_in
+
+    @bookable_rooms = @hotel.bookable_rooms_for(@check_in, @check_out, guests: @guests)
+    @booking = Booking.new(check_in: @check_in, check_out: @check_out, guests: @guests)
+    @selected_room = @rooms.find_by(id: params[:room_id])
   end
 
   def new

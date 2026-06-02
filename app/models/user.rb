@@ -8,6 +8,7 @@ class User < ApplicationRecord
   has_many :properties, dependent: :nullify
   has_many :favorites, dependent: :destroy
   has_many :favorite_hotels, through: :favorites, source: :hotel
+  has_many :bookings, dependent: :destroy
 
   # Кастомная валидация для почты
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i

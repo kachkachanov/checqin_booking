@@ -1,0 +1,19 @@
+<% if notice.present? %>
+  <div id="flash-notice" class="fixed top-20 left-1/2 -translate-x-1/2 z-[250] max-w-[90vw] sm:max-w-md px-5 py-3.5 rounded-2xl text-sm font-semibold flex items-center gap-2 shadow-lg"
+       style="background:rgba(29,184,150,.15);border:1px solid rgba(29,184,150,.35);color:#e8f5f1;backdrop-filter:blur(12px)">
+    <svg class="w-4 h-4 text-tl flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+    </svg>
+    <span><%= notice %></span>
+    <button type="button" onclick="this.parentElement.remove()" class="ml-2 text-tx3 hover:text-tx">✕</button>
+  </div>
+  <script>setTimeout(()=>document.getElementById('flash-notice')?.remove(),6000)</script>
+<% end %>
+<% if alert.present? %>
+  <div id="flash-alert" class="fixed top-20 left-1/2 -translate-x-1/2 z-[250] max-w-[90vw] sm:max-w-md px-5 py-3.5 rounded-2xl text-sm font-semibold flex items-center gap-2 shadow-lg"
+       style="background:rgba(242,79,107,.12);border:1px solid rgba(242,79,107,.3);color:#f87171;backdrop-filter:blur(12px)">
+    <span><%= alert %></span>
+    <button type="button" onclick="this.parentElement.remove()" class="ml-2 opacity-70 hover:opacity-100">✕</button>
+  </div>
+  <script>setTimeout(()=>document.getElementById('flash-alert')?.remove(),6000)</script>
+<% end %>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_03_25_201100) do
+ActiveRecord::Schema[7.1].define(version: 2026_05_24_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -40,6 +40,26 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_25_201100) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "bookings", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "hotel_id", null: false
+    t.bigint "room_id"
+    t.date "check_in", null: false
+    t.date "check_out", null: false
+    t.integer "guests", default: 1, null: false
+    t.decimal "price_per_night", precision: 10, scale: 2, null: false
+    t.decimal "total_price", precision: 10, scale: 2, null: false
+    t.string "status", default: "confirmed", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["hotel_id", "check_in", "check_out"], name: "index_bookings_on_hotel_id_and_check_in_and_check_out"
+    t.index ["hotel_id"], name: "index_bookings_on_hotel_id"
+    t.index ["room_id", "check_in", "check_out"], name: "index_bookings_on_room_id_and_check_in_and_check_out"
+    t.index ["room_id"], name: "index_bookings_on_room_id"
+    t.index ["status"], name: "index_bookings_on_status"
+    t.index ["user_id"], name: "index_bookings_on_user_id"
   end
 
   create_table "favorites", force: :cascade do |t|
@@ -122,6 +142,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_25_201100) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "bookings", "hotels"
+  add_foreign_key "bookings", "rooms"
+  add_foreign_key "bookings", "users"
   add_foreign_key "favorites", "hotels"
   add_foreign_key "favorites", "users"
   add_foreign_key "hotels", "users"

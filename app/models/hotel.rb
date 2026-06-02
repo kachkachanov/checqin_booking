@@ -1,6 +1,7 @@
 class Hotel < ApplicationRecord
   belongs_to :user, optional: true
   has_many :rooms, dependent: :destroy
+  has_many :bookings, dependent: :restrict_with_error
   has_many_attached :photos
 
   STATUSES = %w[review active rejected].freeze
@@ -43,6 +44,20 @@ class Hotel < ApplicationRecord
     return 'Даты по запросу' if available_from.blank? || available_to.blank?
 
     "#{I18n.l(available_from, format: '%d %b')} - #{I18n.l(available_to, format: '%d %b')}"
+  end
+
+  def bookable_rooms_for(check_in, check_out, guests: 1)
+    scope = rooms.available
+    scope = scope.where('capacity >= ?', guests) if guests.present?
+    scope.order(:price_per_night).select { |room| room.bookable_between?(check_in, check_out) }
+  end
+
+  def min_check_in_date
+    [available_from, Date.current].compact.max
+  end
+
+  def max_check_out_date
+    available_to
   end
 
   def review?

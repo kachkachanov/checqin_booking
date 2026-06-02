@@ -18,6 +18,11 @@ class Users::RegistrationsController < Devise::RegistrationsController
   protected
 
   def after_sign_up_path_for(resource)
+    flash[:notice] = if resource.supervisor?
+                       'Регистрация супервайзора прошла успешно! Добро пожаловать в Checqin.'
+                     else
+                       'Регистрация прошла успешно! Добро пожаловать в Checqin.'
+                     end
     resource.supervisor? ? supervisor_root_path : root_path
   end
 

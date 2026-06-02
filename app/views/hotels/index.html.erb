@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="csrf-token" content="<%= form_authenticity_token %>">
 <title>Checqin — Найди свой отель</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -96,6 +97,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
 </style>
 </head>
 <body class="bg-bg min-h-screen text-tx overflow-x-hidden">
+<%= render 'shared/flash_notice' %>
 <canvas id="aurora"></canvas>
 <div class="relative z-10 flex flex-col min-h-screen">
   <header class="glass-hdr sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 lg:py-4">
@@ -151,11 +153,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
     <div class="lg:grid lg:grid-cols-2 lg:gap-0 lg:min-h-[calc(100vh-62px)]">
       <div class="relative px-5 sm:px-8 lg:px-14 pt-10 sm:pt-14 pb-14 sm:pb-16 lg:pt-24 lg:pb-24 overflow-hidden flex flex-col justify-end lg:justify-center"
            style="background: radial-gradient(ellipse 80% 60% at 30% 50%,rgba(29,184,150,.22) 0%,transparent 70%), radial-gradient(ellipse 50% 50% at 90% 10%,rgba(29,184,150,.1) 0%,transparent 70%)">
-        <div class="inline-flex items-center gap-2 bg-tl/10 border border-tl/30 text-tl font-bold tracking-[1.4px] uppercase px-3.5 py-1.5 rounded-full mb-5 w-fit"
-             style="font-size:clamp(9px,1.1vw,11px)">
-          <span class="w-1.5 h-1.5 bg-tl rounded-full animate-pulse2"></span>
-          Более 12 000 направлений
-        </div>
         <h1 class="font-serif text-tx tracking-tight mb-3 leading-[1.18]"
             style="font-size:clamp(28px,4vw,52px)">
           Ваш идеальный<br>отель — <em class="text-tl not-italic">везде</em><br>в мире.
@@ -163,22 +160,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
         <p class="text-tx2 leading-relaxed max-w-[420px]" style="font-size:clamp(13px,1.3vw,16px)">
           Ищите, сравнивайте и бронируйте лучшие отели<br class="hidden sm:block">с Checqin — умные путешествия, переосмыслённые.
         </p>
-        <div class="hidden lg:flex items-center gap-8 mt-10">
-          <div>
-            <div class="font-serif text-3xl text-tl">12K+</div>
-            <div class="text-xs text-tx3 font-semibold mt-0.5 tracking-wide uppercase">Направлений</div>
-          </div>
-          <div class="w-px h-10 bg-white/10"></div>
-          <div>
-            <div class="font-serif text-3xl text-tl">4.9★</div>
-            <div class="text-xs text-tx3 font-semibold mt-0.5 tracking-wide uppercase">Рейтинг</div>
-          </div>
-          <div class="w-px h-10 bg-white/10"></div>
-          <div>
-            <div class="font-serif text-3xl text-tl">2M+</div>
-            <div class="text-xs text-tx3 font-semibold mt-0.5 tracking-wide uppercase">Пользователей</div>
-          </div>
-        </div>
       </div>
       <div class="flex items-center justify-center px-4 sm:px-8 lg:px-10 pb-10 lg:py-16"
            style="background:rgba(9,20,16,.4)">
@@ -252,6 +233,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
                 <% else %>
                   <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:52px;background:linear-gradient(135deg,#122720,#0d1c18)">🏨</div>
                 <% end %>
+                <%= render 'shared/hotel_fav_button', hotel: hotel %>
               </div>
               <div class="p-4 sm:p-5">
                 <div class="font-bold text-tx mb-1 leading-snug" style="font-size:clamp(13px,1.4vw,16px)"><%= link_to hotel.name, hotel_path(hotel), style: "color: #e8f5f1; text-decoration: none;" %></div>
@@ -262,10 +244,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
                 <div class="text-tx3 mb-3.5" style="font-size:clamp(10px,1vw,12px)">Доступно: <%= hotel.availability_label %></div>
                 <div class="flex items-end justify-between">
                   <div>
-                    <div class="font-serif text-tx leading-none" style="font-size:clamp(20px,2.2vw,26px)">₽<%= hotel.display_price.to_i %></div>
+                    <div class="font-serif text-tx leading-none" style="font-size:clamp(20px,2.2vw,26px)"><%= format_hotel_price(hotel.display_price) %></div>
                     <div class="text-tx3 mt-1" style="font-size:clamp(10px,1vw,12px)">за ночь · базовая цена</div>
                   </div>
-                  <button onclick="window.location.href='/hotels/<%= hotel.id %>'" class="rounded-[12px] border-none text-bg font-extrabold cursor-pointer transition-all hover:-translate-y-0.5" style="padding:clamp(9px,1vw,12px) clamp(14px,1.5vw,20px);background:linear-gradient(135deg,#1db896,#15a07f);box-shadow:0 6px 20px rgba(29,184,150,.3);font-size:clamp(11px,1.2vw,14px)">
+                  <button onclick="window.location.href='<%= hotel_path(hotel) %>'" class="rounded-[12px] border-none text-bg font-extrabold cursor-pointer transition-all hover:-translate-y-0.5" style="padding:clamp(9px,1vw,12px) clamp(14px,1.5vw,20px);background:linear-gradient(135deg,#1db896,#15a07f);box-shadow:0 6px 20px rgba(29,184,150,.3);font-size:clamp(11px,1.2vw,14px)">
                     Подробнее
                   </button>
                 </div>
@@ -299,78 +281,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
     </div>
   </div>
 </div>
-<div class="fixed inset-0 z-[200] hidden" id="mover">
-  <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeMenu()"></div>
-  <div class="absolute right-0 top-0 bottom-0 w-[290px] sm:w-[340px] bg-bg3 border-l border-white/8 flex flex-col animate-drawerIn">
-    <div class="flex items-center justify-between p-5 border-b border-white/8">
-      <svg width="100" viewBox="0 0 140 36" fill="none">
-        <path d="M28 5 C16 5 6 13 6 22 C6 31 16 36 28 36" stroke="#1db896" stroke-width="5" stroke-linecap="round" fill="none"/>
-        <ellipse cx="7" cy="22" rx="5" ry="6" fill="#1db896"/>
-        <path d="M7 28 L5 34 L7 31 L9 34 Z" fill="#1db896"/>
-        <circle cx="7" cy="21" r="2" fill="#050f0c"/>
-        <rect x="6.2" y="22.5" width="1.6" height="3" rx=".8" fill="#050f0c"/>
-        <path d="M35 8 L35 32 M35 20 Q40 14 46 20 L46 32" stroke="#1db896" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        <path d="M52 26 Q52 18 59 18 Q66 18 66 24 L52 24 M52 26 Q52 32 59 32" stroke="#1db896" stroke-width="4" stroke-linecap="round" fill="none"/>
-        <path d="M82 20 Q75 15 70 23 Q65 31 73 32 Q79 32 82 27" stroke="#1db896" stroke-width="4" stroke-linecap="round" fill="none"/>
-        <path d="M96 17 Q88 17 88 24 Q88 32 96 32 Q104 32 104 24 Q104 19 101 17 M102 30 L108 36" stroke="#1db896" stroke-width="4" stroke-linecap="round" fill="none"/>
-        <circle cx="113" cy="12" r="2.5" fill="#1db896"/>
-        <line x1="113" y1="18" x2="113" y2="32" stroke="#1db896" stroke-width="4" stroke-linecap="round"/>
-        <path d="M120 32 L120 18 Q120 18 127 26 Q134 32 134 32 L134 18" stroke="#1db896" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-      </svg>
-      <button onclick="closeMenu()" class="w-8 h-8 rounded-[9px] border border-white/10 bg-white/[.04] text-tx2 text-base flex items-center justify-center transition-all hover:border-tl hover:text-tl">✕</button>
-    </div>
-    <div class="flex-1 overflow-y-auto">
-      <% if user_signed_in? %>
-        <%= link_to '/',
-                    class: "flex items-center justify-between px-5 py-4 border-b border-white/8 cursor-pointer hover:bg-tl/5 transition-colors",
-                    data: { turbo: false } do %>
-          <div class="flex items-center gap-3.5">
-            <div class="w-10 h-10 rounded-xl bg-tl/10 border border-tl/20 flex items-center justify-center text-tl"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></div>
-            <span class="text-sm font-semibold text-tx"><%= current_user.email %></span>
-          </div>
-          <svg class="w-4 h-4 text-tx3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-        <% end %>
-      <% else %>
-        <%= link_to new_user_session_path,
-                    class: "flex items-center justify-between px-5 py-4 border-b border-white/8 cursor-pointer hover:bg-tl/5 transition-colors",
-                    data: { turbo: false } do %>
-          <div class="flex items-center gap-3.5">
-            <div class="w-10 h-10 rounded-xl bg-tl/10 border border-tl/20 flex items-center justify-center text-tl"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></div>
-            <span class="text-sm font-semibold text-tx">Войти</span>
-          </div>
-          <svg class="w-4 h-4 text-tx3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-        <% end %>
-        <%= link_to new_user_registration_path(account_type: :supervisor),
-                    class: "flex items-center justify-between px-5 py-4 border-b border-white/8 cursor-pointer hover:bg-tl/5 transition-colors",
-                    data: { turbo: false } do %>
-          <div class="flex items-center gap-3.5">
-            <div class="w-10 h-10 rounded-xl bg-tl/10 border border-tl/20 flex items-center justify-center text-tl"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M5 21V7l8-4 6 3v15M9 9h.01M9 13h.01M9 17h.01M15 9h.01M15 13h.01M15 17h.01"/></svg></div>
-            <span class="text-sm font-semibold text-tx">Стать супервайзором</span>
-          </div>
-          <svg class="w-4 h-4 text-tx3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-        <% end %>
-      <% end %>
-      <div class="flex items-center justify-between px-5 py-4 border-b border-white/8 cursor-pointer hover:bg-tl/5 transition-colors">
-        <div class="flex items-center gap-3.5">
-          <div class="w-10 h-10 rounded-xl bg-tl/10 border border-tl/20 flex items-center justify-center text-tl"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
-          <span class="text-sm font-semibold text-tx">Помощь</span>
-        </div>
-        <svg class="w-4 h-4 text-tx3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-      </div>
-      <div class="flex items-center justify-between px-5 py-4 border-b border-white/8 cursor-pointer hover:bg-tl/5 transition-colors">
-        <div class="flex items-center gap-3.5">
-          <div class="w-10 h-10 rounded-xl bg-tl/10 border border-tl/20 flex items-center justify-center text-tl"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
-          <span class="text-sm font-semibold text-tx">Валюта</span>
-        </div>
-        <div class="flex items-center gap-2"><span class="text-xs text-tx3">RUB ₽</span><svg class="w-4 h-4 text-tx3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></div>
-      </div>
-    </div>
-    <div class="px-5 py-5 border-t border-white/8 text-center">
-      <div class="text-xs font-extrabold text-tl tracking-widest">CHECQIN</div>
-      <div class="text-[11px] text-tx3 mt-1">Умные путешествия.</div>
-    </div>
-  </div>
-</div>
+<%= render 'shared/smart_panel' %>
+<%= render 'shared/favorite_scripts' %>
 <div class="fixed inset-0 z-[300] hidden items-end lg:items-center justify-center" id="cov"
      onclick="if(event.target===this)closeCal()">
   <div class="absolute inset-0 bg-black/70 backdrop-blur-md" onclick="closeCal()"></div>
@@ -470,8 +382,6 @@ function doSearch(){
   document.getElementById('guests_hidden').value = S.guests;
   document.querySelector('.search-form').submit();
 }
-function openMenu(){const m=document.getElementById('mover');m.classList.remove('hidden');m.classList.add('flex')}
-function closeMenu(){const m=document.getElementById('mover');m.classList.add('hidden');m.classList.remove('flex')}
 function openCal(mode){
   S.calM=mode;S.tCI=S.ci?new Date(S.ci):null;S.tCO=S.co?new Date(S.co):null;
   const ref=mode==='checkin'?S.ci:S.co;

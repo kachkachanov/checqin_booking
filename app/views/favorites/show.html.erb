@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="csrf-token" content="<%= form_authenticity_token %>">
 <title>Checqin — Избранное</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,6 +21,10 @@ tailwind.config = {
         serif:['"DM Serif Display"','serif'],
         sans:['"Plus Jakarta Sans"','sans-serif'],
       },
+      keyframes: {
+        drawerIn:{from:{transform:'translateX(100%)'},to:{transform:'translateX(0)'}},
+      },
+      animation:{drawerIn:'drawerIn .28s cubic-bezier(.32,0,.15,1)'},
     }
   }
 }
@@ -34,9 +39,15 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
 @media(min-width:1280px){.hotels-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}}
 @media(min-width:768px) and (max-width:1023px){.hotels-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}}
 @media(max-width:767px){.hotels-grid{display:flex;flex-direction:column;gap:16px}}
+.fav-heart-btn{display:grid;place-items:center;padding:0;line-height:0}
+.fav-heart-btn svg{display:block;flex-shrink:0}
+.favorites-empty{width:100%;min-height:calc(100vh - 200px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.favorites-empty-icon{display:grid;place-items:center;width:clamp(80px,10vw,96px);height:clamp(80px,10vw,96px);border-radius:28px;border:1px solid rgba(29,184,150,.2);background:rgba(29,184,150,.1);color:#1db896;margin-bottom:1.5rem}
+.favorites-empty-icon svg{width:40px;height:40px;display:block}
 </style>
 </head>
 <body class="bg-bg min-h-screen text-tx overflow-x-hidden">
+<%= render 'shared/flash_notice' %>
 <canvas id="aurora"></canvas>
 
 <div class="relative z-10 flex flex-col min-h-screen">
@@ -78,8 +89,11 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
       <% end %>
     </nav>
     <div class="flex items-center gap-2">
-      <button onclick="window.location.href='/favorites'" title="Избранное" class="w-9 h-9 lg:w-10 lg:h-10 rounded-xl border border-white/10 bg-white/[.04] flex items-center justify-center text-tl cursor-pointer transition-all hover:border-tl hover:text-tl hover:bg-tl/10">
-        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+      <button type="button" onclick="window.location.href='/favorites'" title="Избранное" class="fav-heart-btn w-9 h-9 lg:w-10 lg:h-10 rounded-xl border border-white/10 bg-white/[.04] text-tl cursor-pointer transition-all hover:border-tl hover:bg-tl/10">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+      </button>
+      <button onclick="openMenu()" class="w-9 h-9 lg:w-10 lg:h-10 rounded-xl border border-white/10 bg-white/[.04] flex items-center justify-center text-tx2 cursor-pointer transition-all hover:border-tl hover:text-tl hover:bg-tl/10">
+        <svg class="w-4 h-4 block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
       </button>
     </div>
   </header>
@@ -93,8 +107,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
       <div class="text-tx3 mt-0.5" id="fav-count" style="font-size:clamp(10px,1.1vw,12px)"><%= @favorites.count %> отель сохранен</div>
     </div>
   </div>
+  <% if @favorites.any? %>
   <div class="px-4 sm:px-6 lg:px-8 xl:px-10 pt-4 pb-10 hotels-grid" id="favorites-grid">
-    <% if @favorites.any? %>
       <% @favorites.each do |favorite| %>
         <% hotel = favorite.hotel %>
         <div class="hcard-wrap rounded-[20px] overflow-hidden bg-bg3 border border-white/8 transition-all duration-300 hover:-translate-y-1" style="box-shadow:0 2px 14px rgba(0,0,0,.22)">
@@ -105,10 +119,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
             <% else %>
               <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:52px;background:linear-gradient(135deg,#122720,#0d1c18)">🏨</div>
             <% end %>
-            <button id="hf-<%= hotel.id %>" onclick="toggleFav(<%= hotel.id %>)"
-              style="position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:50%;border:none;background:rgba(5,15,12,.75);backdrop-filter:blur(8px);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s">
-              <svg style="width:16px;height:16px" fill="#f87171" viewBox="0 0 24 24" stroke="#f87171" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
-            </button>
+            <%= render 'shared/hotel_fav_button', hotel: hotel %>
           </div>
           <div class="p-4 sm:p-5">
             <div class="flex items-center justify-between mb-2">
@@ -123,7 +134,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
             <div class="text-tx3 mb-3.5" style="font-size:clamp(10px,1vw,12px)">Доступно: <%= hotel.availability_label %></div>
             <div class="flex items-end justify-between">
               <div>
-                <div class="font-serif text-tx leading-none" style="font-size:clamp(20px,2.2vw,26px)">₽<%= hotel.display_price.to_i %></div>
+                <div class="font-serif text-tx leading-none" style="font-size:clamp(20px,2.2vw,26px)"><%= format_hotel_price(hotel.display_price) %></div>
                 <div class="text-tx3 mt-1" style="font-size:clamp(10px,1vw,12px)">за ночь · от 1 гостя</div>
               </div>
               <button onclick="window.location.href='/hotels/<%= hotel.id %>'"
@@ -135,17 +146,22 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
           </div>
         </div>
       <% end %>
-    <% else %>
-      <div class="flex flex-col items-center justify-center flex-1 px-8 py-20 text-center">
-        <div class="rounded-[28px] border border-tl/20 bg-tl/10 flex items-center justify-center text-tl mb-6 mx-auto" style="width:clamp(72px,8vw,96px);height:clamp(72px,8vw,96px)">
-          <svg style="width:40%;height:40%" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
-        </div>
-        <h3 class="font-serif text-tx mb-2.5" style="font-size:clamp(20px,2.2vw,28px)">Пока ничего нет</h3>
-        <p class="text-tx2 leading-[1.7] max-w-[280px]" style="font-size:clamp(12px,1.2vw,14px)">Нажмите ♡ на карточке отеля, чтобы сохранить его сюда.</p>
-      </div>
-    <% end %>
   </div>
+  <% else %>
+  <div class="favorites-empty px-8 py-20">
+    <div class="favorites-empty-icon">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+      </svg>
+    </div>
+    <h3 class="font-serif text-tx mb-2.5" style="font-size:clamp(20px,2.2vw,28px)">Пока ничего нет</h3>
+    <p class="text-tx2 leading-[1.7] max-w-[280px] mx-auto" style="font-size:clamp(12px,1.2vw,14px)">Нажмите ♡ на карточке отеля, чтобы сохранить его сюда.</p>
+  </div>
+  <% end %>
 </div>
+
+<%= render 'shared/smart_panel' %>
+<%= render 'shared/favorite_scripts' %>
 
 <script>
 (function(){
@@ -174,22 +190,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
   draw();
 })();
 
-function toggleFav(id){
-  fetch('/favorites/toggle/' + id, {
-    method: 'POST',
-    headers: {
-      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
-      'Content-Type': 'application/json'
-    }
-  }).then(() => {
-    location.reload();
-  });
-}
-
 function applyHotelsGrid(){
   const w=window.innerWidth;
   const el=document.getElementById('favorites-grid');
-  if(!el)return;
+  if(!el) return;
   if(w>=1280){el.style.display='grid';el.style.gridTemplateColumns='repeat(3,1fr)';el.style.gap='20px';el.style.flexDirection=''}
   else if(w>=768){el.style.display='grid';el.style.gridTemplateColumns='repeat(2,1fr)';el.style.gap='16px';el.style.flexDirection=''}
   else{el.style.display='flex';el.style.flexDirection='column';el.style.gap='16px';}

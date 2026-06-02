@@ -9,7 +9,11 @@ Rails.application.routes.draw do
   resource :favorites, only: [:show] do
     post 'toggle/:hotel_id', to: 'favorites#toggle', as: :toggle
   end
+  patch 'currency', to: 'currencies#update', as: :currency
+  patch 'account/password', to: 'accounts#update_password', as: :account_password
+  resources :bookings, only: [:index, :show]
   resources :hotels do
+    resources :bookings, only: [:create]
     resources :rooms
   end
   resources :properties, only: [:show]
