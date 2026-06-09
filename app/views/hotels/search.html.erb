@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="csrf-token" content="<%= form_authenticity_token %>">
-<title>Checqin — Поиск отелей</title>
+<title>Checqin — Поиск жилья</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -67,7 +67,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
     </div>
     <nav class="hidden lg:flex items-center gap-6 text-sm font-semibold text-tx2">
       <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/'">Главная</span>
-      <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/search'">Все отели</span>
+      <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/search'">Найти жильё</span>
       <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/favorites'">Избранное</span>
       <% if user_signed_in? %>
         <% if current_user.supervisor? %>
@@ -100,62 +100,50 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
     </button>
     <div class="flex-1 min-w-0">
-      <div class="font-bold text-tx truncate" id="res-city" style="font-size:clamp(14px,1.6vw,18px)"><%= @city || 'Все отели' %></div>
+      <div class="font-bold text-tx truncate" id="res-city" style="font-size:clamp(14px,1.6vw,18px)"><%= @city.presence || 'Все объекты' %></div>
       <div class="text-tx3 mt-0.5" id="res-info" style="font-size:clamp(10px,1.1vw,12px)">
-        <%= @checkin ? @checkin : '' %> — <%= @checkout ? @checkout : '' %> · <%= @guests %> гост.
+        <% if @checkin && @checkout %>
+          <%= @checkin %> — <%= @checkout %><%= " · #{@guests} гост." if @guests.to_i.positive? %>
+        <% else %>
+          <%= @listings.size %> объект<%= @listings.size % 10 == 1 && @listings.size % 100 != 11 ? '' : (@listings.size % 10 >= 2 && @listings.size % 10 <= 4 && (@listings.size % 100 < 10 || @listings.size % 100 >= 20) ? 'а' : 'ов') %> на сайте
+        <% end %>
       </div>
     </div>
-    <div class="hidden lg:flex gap-2">
+    <div class="hidden lg:flex gap-2 flex-wrap">
       <button class="ft on" data-f="all" onclick="setFlt(this,'all')">Все</button>
-      <button class="ft" data-f="hotels" onclick="setFlt(this,'hotels')">Отели</button>
-      <button class="ft" data-f="suites" onclick="setFlt(this,'suites')">Апартаменты</button>
+      <% if @filter_types[:hotels].any? %>
+        <button class="ft" data-f="hotel" onclick="setFlt(this,'hotel')">Отели</button>
+        <% @filter_types[:hotels].each do |type| %>
+          <button class="ft" data-f="<%= type %>" onclick="setFlt(this,'<%= type %>')"><%= type %></button>
+        <% end %>
+      <% end %>
+      <% if @filter_types[:properties].any? %>
+        <button class="ft" data-f="property" onclick="setFlt(this,'property')">Жильё</button>
+        <% @filter_types[:properties].each do |type| %>
+          <button class="ft" data-f="<%= type %>" onclick="setFlt(this,'<%= type %>')"><%= type %></button>
+        <% end %>
+      <% end %>
     </div>
   </div>
   <div class="lg:hidden no-sb flex gap-2 px-4 py-3 overflow-x-auto bg-bg2">
     <button class="ft on" data-f="all" onclick="setFlt(this,'all')">Все</button>
-    <button class="ft" data-f="hotels" onclick="setFlt(this,'hotels')">Отели</button>
-    <button class="ft" data-f="suites" onclick="setFlt(this,'suites')">Апартаменты</button>
+    <% if @filter_types[:hotels].any? %>
+      <button class="ft" data-f="hotel" onclick="setFlt(this,'hotel')">Отели</button>
+      <% @filter_types[:hotels].each do |type| %>
+        <button class="ft" data-f="<%= type %>" onclick="setFlt(this,'<%= type %>')"><%= type %></button>
+      <% end %>
+    <% end %>
+    <% if @filter_types[:properties].any? %>
+      <button class="ft" data-f="property" onclick="setFlt(this,'property')">Жильё</button>
+      <% @filter_types[:properties].each do |type| %>
+        <button class="ft" data-f="<%= type %>" onclick="setFlt(this,'<%= type %>')"><%= type %></button>
+      <% end %>
+    <% end %>
   </div>
   <div class="px-4 sm:px-6 lg:px-8 xl:px-10 pt-4 pb-10 hotels-grid" id="hotels-list">
-    <% if @hotels.any? %>
-      <% @hotels.each do |hotel| %>
-        <div class="hcard-wrap rounded-[20px] overflow-hidden bg-bg3 border border-white/8 transition-all duration-300 hover:-translate-y-1" style="box-shadow:0 2px 14px rgba(0,0,0,.22)">
-          <div style="position:relative;height:185px;overflow:hidden;background:#122720">
-            <% if hotel.photos.attached? && hotel.photos.first.present? %>
-              <img class="hcard-photo" src="<%= url_for(hotel.photos.first) %>" alt="<%= hotel.name %>" loading="lazy"
-                style="width:100%;height:100%;object-fit:cover;display:block">
-            <% else %>
-              <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:52px;background:linear-gradient(135deg,#122720,#0d1c18)">🏨</div>
-            <% end %>
-            <% if hotel.description.present? %>
-              <div style="position:absolute;top:12px;left:12px;background:rgba(29,184,150,.9);color:#050f0c;font-size:clamp(9px,1vw,11px);font-weight:800;padding:4px 10px;border-radius:8px;backdrop-filter:blur(6px)">⭐ Топ</div>
-            <% end %>
-            <%= render 'shared/hotel_fav_button', hotel: hotel %>
-          </div>
-          <div class="p-4 sm:p-5">
-            <div class="flex items-center justify-between mb-2">
-              <div style="color:#f5c842;font-size:clamp(10px,1.1vw,13px);letter-spacing:1px"><%= "★" * hotel.rating.to_i %><%= "☆" * (5 - hotel.rating.to_i) %></div>
-              <div style="background:#1db896;color:#050f0c;font-weight:800;font-size:clamp(11px,1.1vw,13px);padding:4px 9px;border-radius:8px"><%= hotel.rating || 4.5 %></div>
-            </div>
-            <div class="font-bold text-tx mb-1 leading-snug" style="font-size:clamp(13px,1.4vw,16px)"><%= link_to hotel.name, hotel_path(hotel), style: "color: #e8f5f1; text-decoration: none;" %></div>
-            <div class="flex items-center gap-1.5 text-tx3 mb-3.5" style="font-size:clamp(11px,1.1vw,13px)">
-              <svg style="width:11px;height:11px;color:#1db896;flex-shrink:0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-              <%= hotel.city %>, <%= hotel.address %>
-            </div>
-            <div class="text-tx3 mb-3.5" style="font-size:clamp(10px,1vw,12px)">Доступно: <%= hotel.availability_label %></div>
-            <div class="flex items-end justify-between">
-              <div>
-                <div class="font-serif text-tx leading-none" style="font-size:clamp(20px,2.2vw,26px)"><%= format_hotel_price(hotel.display_price) %></div>
-                <div class="text-tx3 mt-1" style="font-size:clamp(10px,1vw,12px)">за ночь · от 1 гостя</div>
-              </div>
-              <button onclick="window.location.href='<%= hotel_path(hotel, checkin: params[:checkin], checkout: params[:checkout], guests: params[:guests]) %>'"
-                class="rounded-[12px] border-none text-bg font-extrabold cursor-pointer transition-all hover:-translate-y-0.5"
-                style="padding:clamp(9px,1vw,12px) clamp(14px,1.5vw,20px);background:linear-gradient(135deg,#1db896,#15a07f);box-shadow:0 6px 20px rgba(29,184,150,.3);font-size:clamp(11px,1.2vw,14px)">
-                Подробнее
-              </button>
-            </div>
-          </div>
-        </div>
+    <% if @listings.any? %>
+      <% @listings.each do |listing| %>
+        <%= render 'shared/listing_card', listing: listing, checkin: params[:checkin], checkout: params[:checkout], guests: params[:guests] %>
       <% end %>
     <% else %>
       <div class="glass rounded-[24px] p-10 text-center">
@@ -198,6 +186,16 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
 function setFlt(btn,f){
   document.querySelectorAll('.ft').forEach(b=>b.classList.remove('on'));
   document.querySelectorAll('.ft[data-f="'+f+'"]').forEach(b=>b.classList.add('on'));
+  document.querySelectorAll('.listing-card').forEach(card=>{
+    const kind=card.dataset.kind;
+    const type=card.dataset.type;
+    let show=false;
+    if(f==='all') show=true;
+    else if(f==='hotel') show=kind==='hotel';
+    else if(f==='property') show=kind==='property';
+    else show=type===f;
+    card.style.display=show?'':'none';
+  });
 }
 function applyHotelsGrid(){
   const w=window.innerWidth;

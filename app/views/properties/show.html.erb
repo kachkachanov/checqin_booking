@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checqin — <%= @property.name %></title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{font-family:'Plus Jakarta Sans',sans-serif;margin:0;background:#050f0c;color:#e8f5f1}
+.glass-hdr{background:rgba(5,15,12,.82);backdrop-filter:blur(20px);border-bottom:1px solid rgba(29,184,150,.15)}
+.glass{background:rgba(13,28,24,.88);border:1px solid rgba(29,184,150,.18);border-radius:20px}
+</style>
+</head>
+<body>
+<header class="glass-hdr sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6 py-3">
+  <%= link_to '← Назад', search_hotels_path, class: 'text-sm font-semibold text-tx2 hover:text-tl' %>
+  <%= link_to 'Главная', root_path, class: 'text-sm font-semibold text-tx2 hover:text-tl' %>
+</header>
+
+<main class="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+  <div class="rounded-[24px] overflow-hidden mb-6" style="height:320px;background:#122720">
+    <%= listing_photo_tag(@property, css_class: 'w-full h-full object-cover') %>
+  </div>
+
+  <div class="glass p-6 sm:p-8">
+    <div class="text-xs font-extrabold tracking-[1.6px] uppercase text-[#5a8078] mb-2"><%= @property.property_type %></div>
+    <h1 class="font-serif text-3xl sm:text-4xl mb-3"><%= @property.name %></h1>
+    <p class="text-[#9bbdb5] mb-4"><%= @property.city %>, <%= @property.address %></p>
+    <% if @property.description.present? %>
+      <p class="text-[#9bbdb5] leading-relaxed mb-6"><%= @property.description %></p>
+    <% end %>
+
+    <div class="grid sm:grid-cols-3 gap-4 mb-6">
+      <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+        <div class="text-xs text-[#5a8078] mb-1">Комнат</div>
+        <div class="text-xl font-bold"><%= @property.rooms_count %></div>
+      </div>
+      <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+        <div class="text-xs text-[#5a8078] mb-1">Гостей</div>
+        <div class="text-xl font-bold"><%= @property.guests_capacity %></div>
+      </div>
+      <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+        <div class="text-xs text-[#5a8078] mb-1">Площадь</div>
+        <div class="text-xl font-bold"><%= @property.area %> м²</div>
+      </div>
+    </div>
+
+    <div class="flex items-end justify-between gap-4 flex-wrap">
+      <div>
+        <div class="font-serif text-3xl"><%= format_hotel_price(@property.display_price) %></div>
+        <div class="text-sm text-[#5a8078] mt-1">за ночь · <%= @property.availability_label %></div>
+      </div>
+    </div>
+  </div>
+</main>
+</body>
+</html>

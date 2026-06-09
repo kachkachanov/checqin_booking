@@ -1,0 +1,43 @@
+<div class="listing-card hcard-wrap rounded-[20px] overflow-hidden bg-bg3 border border-white/8 transition-all duration-300 hover:-translate-y-1"
+     data-kind="<%= listing.kind %>"
+     data-type="<%= listing.type_label %>"
+     style="box-shadow:0 2px 14px rgba(0,0,0,.22)">
+  <div style="position:relative;height:185px;overflow:hidden;background:#122720">
+    <%= listing_photo_tag(listing.record, alt: listing.name) %>
+    <div style="position:absolute;top:12px;left:12px;background:rgba(29,184,150,.9);color:#050f0c;font-size:clamp(9px,1vw,11px);font-weight:800;padding:4px 10px;border-radius:8px;backdrop-filter:blur(6px)">
+      <%= listing.hotel? ? '🏨 Отель' : '🏠 Жильё' %>
+    </div>
+    <% if listing.hotel? %>
+      <%= render 'shared/hotel_fav_button', hotel: listing.record %>
+    <% end %>
+  </div>
+  <div class="p-4 sm:p-5">
+    <% if listing.hotel? %>
+      <div class="flex items-center justify-between mb-2">
+        <div style="color:#f5c842;font-size:clamp(10px,1.1vw,13px);letter-spacing:1px"><%= "★" * listing.rating.to_i %><%= "☆" * (5 - listing.rating.to_i) %></div>
+        <div style="background:#1db896;color:#050f0c;font-weight:800;font-size:clamp(11px,1.1vw,13px);padding:4px 9px;border-radius:8px"><%= listing.rating %></div>
+      </div>
+    <% else %>
+      <div class="text-tx3 mb-2" style="font-size:clamp(10px,1.1vw,12px)"><%= listing.type_label %></div>
+    <% end %>
+    <div class="font-bold text-tx mb-1 leading-snug" style="font-size:clamp(13px,1.4vw,16px)">
+      <%= link_to listing.name, listing_path_for(listing, checkin: local_assigns[:checkin], checkout: local_assigns[:checkout], guests: local_assigns[:guests]), style: 'color:#e8f5f1;text-decoration:none' %>
+    </div>
+    <div class="flex items-center gap-1.5 text-tx3 mb-3.5" style="font-size:clamp(11px,1.1vw,13px)">
+      <svg style="width:11px;height:11px;color:#1db896;flex-shrink:0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      <%= listing.city %>, <%= listing.address %>
+    </div>
+    <div class="text-tx3 mb-3.5" style="font-size:clamp(10px,1vw,12px)">Доступно: <%= listing.availability_label %></div>
+    <div class="flex items-end justify-between">
+      <div>
+        <div class="font-serif text-tx leading-none" style="font-size:clamp(20px,2.2vw,26px)"><%= format_hotel_price(listing.display_price) %></div>
+        <div class="text-tx3 mt-1" style="font-size:clamp(10px,1vw,12px)">за ночь</div>
+      </div>
+      <button onclick="window.location.href='<%= listing_path_for(listing, checkin: local_assigns[:checkin], checkout: local_assigns[:checkout], guests: local_assigns[:guests]) %>'"
+        class="rounded-[12px] border-none text-bg font-extrabold cursor-pointer transition-all hover:-translate-y-0.5"
+        style="padding:clamp(9px,1vw,12px) clamp(14px,1.5vw,20px);background:linear-gradient(135deg,#1db896,#15a07f);box-shadow:0 6px 20px rgba(29,184,150,.3);font-size:clamp(11px,1.2vw,14px)">
+        Подробнее
+      </button>
+    </div>
+  </div>
+</div>

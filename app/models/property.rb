@@ -2,6 +2,12 @@ class Property < ApplicationRecord
   belongs_to :user
   has_many_attached :photos
 
+  validates :photos,
+            content_type: { in: %w[image/png image/jpeg image/jpg image/pjpeg image/webp],
+                            message: 'должны быть в формате PNG или JPG' },
+            size: { less_than: 10.megabytes },
+            if: -> { photos.attached? }
+
   STATUSES = %w[review active rejected].freeze
 
   validates :name, :property_type, :city, :address, :guests_capacity, presence: true
@@ -21,7 +27,10 @@ class Property < ApplicationRecord
   scope :available_for_stay, lambda { |checkin, checkout|
     return all if checkin.blank? || checkout.blank?
 
-    where("available_from <= ? AND available_to >= ?", checkin, checkout)
+    where(
+      '(available_from IS NULL OR available_from <= ?) AND (available_to IS NULL OR available_to >= ?)',
+      checkin, checkout
+    )
   }
 
   def display_price

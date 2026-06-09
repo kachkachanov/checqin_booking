@@ -1,0 +1,12 @@
+<h2>Введите код из письма</h2>
+
+<%= form_with url: users_otp_path, method: :post do |f| %>
+  <% if flash[:alert] %>
+    <p style="color: red;"><%= flash[:alert] %></p>
+  <% end %>
+
+  <%= f.label :otp_code, "Код из письма" %>
+  <%= f.text_field :otp_code, placeholder: "Введите 6-значный код" %>
+
+  <%= f.submit "Подтвердить" %>
+<% end %>

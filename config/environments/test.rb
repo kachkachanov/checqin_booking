@@ -13,6 +13,7 @@ Rails.application.configure do
   config.active_storage.service = :test
   config.action_mailer.perform_caching = false
   config.action_mailer.delivery_method = :test
+  config.action_mailer.default_url_options = { host: "www.example.com" }
   config.active_support.deprecation = :stderr
   config.active_record.migration_error = :page_load
   config.active_record.verbose_query_logs = true

@@ -4,6 +4,12 @@ class Hotel < ApplicationRecord
   has_many :bookings, dependent: :restrict_with_error
   has_many_attached :photos
 
+  validates :photos,
+            content_type: { in: %w[image/png image/jpeg image/jpg image/pjpeg image/webp],
+                            message: 'должны быть в формате PNG или JPG' },
+            size: { less_than: 10.megabytes },
+            if: -> { photos.attached? }
+
   STATUSES = %w[review active rejected].freeze
 
   validates :name, presence: true, length: { minimum: 2, maximum: 100 }
@@ -21,11 +27,18 @@ class Hotel < ApplicationRecord
   scope :rejected, -> { where(status: 'rejected') }
   scope :by_city, ->(city) { where('city ILIKE ?', "%#{city}%") if city.present? }
   scope :by_type, ->(type) { where(hotel_type: type) if type.present? }
-  scope :with_available_rooms, -> { joins(:rooms).where(rooms: { available: true }).distinct }
+  scope :with_available_rooms, lambda { |guests = nil|
+    scope = joins(:rooms).where(rooms: { available: true })
+    scope = scope.where('rooms.capacity >= ?', guests.to_i) if guests.to_i.positive?
+    scope.distinct
+  }
   scope :available_for_stay, lambda { |checkin, checkout|
     return all if checkin.blank? || checkout.blank?
 
-    where("available_from <= ? AND available_to >= ?", checkin, checkout)
+    where(
+      '(available_from IS NULL OR available_from <= ?) AND (available_to IS NULL OR available_to >= ?)',
+      checkin, checkout
+    )
   }
 
   def full_address

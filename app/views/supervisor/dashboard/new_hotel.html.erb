@@ -108,7 +108,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif}
           <p class="text-sm font-semibold text-tx mb-1">Нажмите для загрузки</p>
           <p class="text-xs text-tx3">JPG, PNG &middot; <span class="text-tl font-semibold">Минимум 3 фото</span></p>
         </div>
-        <%= f.file_field :photos, multiple: true, class: "hidden", id: "hotel_photos", onchange: "handlePhotos(this)" %>
+        <%= f.file_field :photos, multiple: true, accept: "image/png,image/jpeg,image/jpg,.png,.jpg,.jpeg", class: "hidden", id: "hotel_photos", onchange: "handlePhotos(this)" %>
         <div id="photo-preview" class="flex flex-wrap gap-2 mt-3"></div>
         <div id="photo-count" class="text-xs text-tx3 mt-1.5"></div>
       </div>

@@ -3,21 +3,26 @@ class HotelsController < ApplicationController
   before_action :authenticate_user!, only: [:new, :create, :edit, :update, :destroy]
 
   def index
-    @hotels = Hotel.active.order(created_at: :desc)
-    @popular_cities = Hotel.distinct.pluck(:city).first(5)
-    @popular_cities = ['Москва', 'Санкт-Петербург', 'Сочи', 'Казань', 'Калининград'] if @popular_cities.empty?
+    @listings = AccommodationSearch.new(browse_all: true).call.first(3)
+    @popular_cities = AccommodationSearch.popular_cities
   end
 
   def search
-    @city = params[:city]
+    @city = params[:city].presence
     @checkin = parse_date(params[:checkin])
     @checkout = parse_date(params[:checkout])
-    @guests = params[:guests].to_i
+    @guests = params[:guests].presence&.to_i
+    browse_all = params[:checkin].blank? && params[:checkout].blank? && @guests.blank?
 
-    @hotels = Hotel.active
-    @hotels = @hotels.by_city(@city) if @city.present?
-    @hotels = @hotels.available_for_stay(@checkin, @checkout)
-    @hotels = @hotels.with_available_rooms if @guests.present?
+    search = AccommodationSearch.new(
+      city: @city,
+      checkin: @checkin,
+      checkout: @checkout,
+      guests: @guests,
+      browse_all: browse_all
+    )
+    @listings = search.call
+    @filter_types = search.filter_types
 
     render :search
   end

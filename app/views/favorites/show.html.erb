@@ -70,7 +70,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
     </div>
     <nav class="hidden lg:flex items-center gap-6 text-sm font-semibold text-tx2">
       <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/'">Главная</span>
-      <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/search'">Все отели</span>
+      <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/search'">Найти жильё</span>
       <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/favorites'">Избранное</span>
       <% if user_signed_in? %>
         <% if current_user.supervisor? %>
@@ -113,9 +113,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
         <% hotel = favorite.hotel %>
         <div class="hcard-wrap rounded-[20px] overflow-hidden bg-bg3 border border-white/8 transition-all duration-300 hover:-translate-y-1" style="box-shadow:0 2px 14px rgba(0,0,0,.22)">
           <div style="position:relative;height:185px;overflow:hidden;background:#122720">
-            <% if hotel.photos.attached? && hotel.photos.first.present? %>
-              <img class="hcard-photo" src="<%= url_for(hotel.photos.first) %>" alt="<%= hotel.name %>" loading="lazy"
-                style="width:100%;height:100%;object-fit:cover;display:block">
+            <% if hotel.photos.attached? %>
+              <%= listing_photo_tag(hotel) %>
             <% else %>
               <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:52px;background:linear-gradient(135deg,#122720,#0d1c18)">🏨</div>
             <% end %>
