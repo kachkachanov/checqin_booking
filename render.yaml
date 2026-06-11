@@ -20,13 +20,9 @@ services:
           name: checqin-db
           property: connectionString
       - key: APP_HOST
-        generateValue: false
+        value: checqin-booking.onrender.com
       - key: OTP_SECRET_KEY
-        generateValue: true
-      - key: GMAIL_USER
-        sync: false
-      - key: GMAIL_PASSWORD
-        sync: false
+        value: doxjZlFC5bbP2qCV3cPcXHO3c77bRm
 
 databases:
   - name: checqin-db
