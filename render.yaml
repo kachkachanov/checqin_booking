@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: checqin-booking
+    runtime: ruby
+    plan: free
+    buildCommand: bundle install
+    startCommand: bundle exec puma -C config/puma.rb
+    autoDeploy: true
+    envVars:
+      - key: RAILS_ENV
+        value: production
+      - key: RAILS_LOG_TO_STDOUT
+        value: "true"
+      - key: RAILS_SERVE_STATIC_FILES
+        value: "true"
+      - key: SECRET_KEY_BASE
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: checqin-db
+          property: connectionString
+      - key: APP_HOST
+        generateValue: false
+      - key: OTP_SECRET_KEY
+        generateValue: true
+      - key: GMAIL_USER
+        sync: false
+      - key: GMAIL_PASSWORD
+        sync: false
+
+databases:
+  - name: checqin-db
+    plan: free
+    databaseName: checqin_production

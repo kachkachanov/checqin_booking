@@ -8,19 +8,15 @@
 *.swp
 *.swo
 *.gem
-*.lock
-*.gemfile.lock
 .bundle
 vendor/bundle
 vendor/cache
-Gemfile.lock
 Gemfile.local
 
 # Environment
 .env
 .env.local
 .env.*.local
-config/database.yml
 config/master.key
 config/credentials.yml.enc
 
