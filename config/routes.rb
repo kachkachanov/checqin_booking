@@ -17,6 +17,16 @@ Rails.application.routes.draw do
     resources :rooms
   end
   resources :properties, only: [:show]
+  
+  # Youth features
+  get 'vibes/hotels/:vibe_name', to: 'vibes#hotels', as: :vibe_hotels
+  get 'hotel_swipe', to: 'hotel_swipe#index', as: :hotel_swipe_index
+  get 'hotel_swipe/next', to: 'hotel_swipe#next_hotel', as: :hotel_swipe_next
+  post 'hotel_swipe/like/:hotel_id', to: 'hotel_swipe#like', as: :hotel_swipe_like
+  post 'hotel_swipe/skip/:hotel_id', to: 'hotel_swipe#skip', as: :hotel_swipe_skip
+  get 'hotel_swipe/liked', to: 'hotel_swipe#liked_hotels', as: :hotel_swipe_liked
+  resources :dream_hotels, only: [:index, :create, :destroy]
+  get 'travel_streak', to: 'travel_streak#show', as: :travel_streak
   namespace :supervisor do
     root 'dashboard#index'
     get 'choice', to: 'dashboard#choice'
@@ -29,6 +39,9 @@ Rails.application.routes.draw do
     get 'properties/:id/edit', to: 'dashboard#edit_property', as: :edit_property
     patch 'properties/:id', to: 'dashboard#update_property', as: :update_property
     get 'success', to: 'dashboard#success'
+
+    get 'bookings', to: 'bookings#index', as: :bookings
+    get 'analytics', to: 'analytics#index', as: :analytics
   end
 
   namespace :admin do

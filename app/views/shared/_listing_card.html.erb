@@ -8,7 +8,9 @@
       <%= listing.hotel? ? '🏨 Отель' : '🏠 Жильё' %>
     </div>
     <% if listing.hotel? %>
-      <%= render 'shared/hotel_fav_button', hotel: listing.record %>
+      <div style="position:absolute;top:12px;right:12px;display:flex;gap:6px;z-index:2">
+        <%= render 'shared/hotel_fav_button', hotel: listing.record %>
+      </div>
     <% end %>
   </div>
   <div class="p-4 sm:p-5">
@@ -27,6 +29,12 @@
       <svg style="width:11px;height:11px;color:#1db896;flex-shrink:0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
       <%= listing.city %>, <%= listing.address %>
     </div>
+    <% if listing.hotel? %>
+      <div class="flex items-center gap-3 mb-3 text-tx3" style="font-size:clamp(9px,1vw,11px)">
+        <span>❤️ <%= listing.record.likes_count %></span>
+        <span>🔥 <%= listing.record.bookings_count_last_month %></span>
+      </div>
+    <% end %>
     <div class="text-tx3 mb-3.5" style="font-size:clamp(10px,1vw,12px)">Доступно: <%= listing.availability_label %></div>
     <div class="flex items-end justify-between">
       <div>

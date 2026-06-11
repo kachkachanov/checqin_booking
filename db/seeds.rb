@@ -9,4 +9,5 @@ admin.save!
 
 puts "Admin ready: #{admin.email}"
 
+load Rails.root.join('db/seeds_vibes.rb')
 load Rails.root.join('db/seeds/hotel_catalog.rb')

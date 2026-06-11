@@ -1,0 +1,91 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="flex items-center justify-between gap-4 mb-8">
+    <div class="flex items-start gap-4">
+      <%= link_to '← На главную', supervisor_root_path, class: "shrink-0 px-4 py-2 rounded-xl border border-white/10 bg-white/[.04] text-tx2 font-semibold text-sm hover:border-tl hover:text-tl transition-all" %>
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-[1.4px] text-[#1db896] border border-[#1db896]/30 bg-[#1db896]/10 mb-3">
+          Supervisor
+        </div>
+        <h1 class="text-3xl sm:text-4xl" style="font-family:'DM Serif Display',serif">Аналитика</h1>
+        <p class="text-sm text-[#9bbdb5] mt-2">Метрики по подтверждённым бронированиям за последние 30 дней</p>
+      </div>
+    </div>
+    <div class="text-sm text-[#9bbdb5]">
+      Владелец: <span class="text-[#e8f5f1] font-semibold"><%= current_user.email %></span>
+    </div>
+  </div>
+
+  <div class="grid lg:grid-cols-3 gap-6">
+    <div class="rounded-3xl border border-white/10 bg-white/5 p-5">
+      <div class="text-sm text-[#9bbdb5]">Подтверждённых бронирований</div>
+      <div class="text-3xl mt-3 font-serif text-tl"><%= @total_confirmed_bookings %></div>
+    </div>
+
+    <div class="rounded-3xl border border-white/10 bg-white/5 p-5">
+      <div class="text-sm text-[#9bbdb5]">Выручка (итого)</div>
+      <div class="text-3xl mt-3 font-serif text-tl"><%= format_hotel_price(@total_revenue) %></div>
+    </div>
+
+    <div class="rounded-3xl border border-white/10 bg-white/5 p-5">
+      <div class="text-sm text-[#9bbdb5]">Средний чек</div>
+      <div class="text-3xl mt-3 font-serif text-tl">
+        <% avg = @total_confirmed_bookings.positive? ? (@total_revenue.to_d / @total_confirmed_bookings) : 0 %>
+        <%= format_hotel_price(avg) %>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-8 grid lg:grid-cols-2 gap-6">
+    <section class="rounded-3xl border border-white/10 bg-white/5 p-5">
+      <div class="flex items-center justify-between mb-5">
+        <h2 class="text-2xl" style="font-family:'DM Serif Display',serif">Бронирования по дням</h2>
+        <span class="text-sm text-[#9bbdb5]">30 дней</span>
+      </div>
+
+      <% if @bookings_by_day.any? %>
+        <div class="space-y-3">
+          <% @bookings_by_day.each do |date, count| %>
+            <div class="flex items-center justify-between rounded-xl border border-white/10 bg-[#091410] px-4 py-3">
+              <div class="text-sm text-[#9bbdb5]"><%= date.strftime('%d.%m') %></div>
+              <div class="text-sm font-bold text-tl"><%= count %></div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="rounded-2xl border border-dashed border-white/10 bg-[#091410] p-6 text-sm text-[#9bbdb5]">
+          Нет данных за последние 30 дней.
+        </div>
+      <% end %>
+    </section>
+
+    <section class="rounded-3xl border border-white/10 bg-white/5 p-5">
+      <div class="flex items-center justify-between mb-5">
+        <h2 class="text-2xl" style="font-family:'DM Serif Display',serif">Топ объектов по выручке</h2>
+        <span class="text-sm text-[#9bbdb5]">Top 5</span>
+      </div>
+
+      <% if @top_hotels.any? %>
+        <div class="space-y-3">
+          <% @top_hotels.each do |hotel_id, revenue| %>
+            <% hotel = current_user.hotels.find_by(id: hotel_id) %>
+            <div class="rounded-2xl border border-white/10 bg-[#091410] p-4">
+              <div class="flex items-start justify-between gap-4">
+                <div>
+                  <div class="font-semibold text-lg"><%= hotel&.name || "ID #{hotel_id}" %></div>
+                  <div class="text-sm text-[#9bbdb5] mt-1"><%= hotel&.city || '-' %></div>
+                </div>
+                <div class="text-right">
+                  <div class="font-serif text-tl text-xl"><%= format_hotel_price(revenue) %></div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="rounded-2xl border border-dashed border-white/10 bg-[#091410] p-6 text-sm text-[#9bbdb5]">
+          Нет подтверждённых бронирований для ваших объектов.
+        </div>
+      <% end %>
+    </section>
+  </div>
+</div>

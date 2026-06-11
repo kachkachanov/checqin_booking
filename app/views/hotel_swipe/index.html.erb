@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="csrf-token" content="<%= form_authenticity_token %>">
+<title>Checqin — Свайп отелей</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        tl:'#1db896',tl2:'#15a07f',tl3:'#0d7a60',
+        bg:'#050f0c',bg2:'#091410',bg3:'#0d1c18',bg4:'#122720',
+        tx:'#e8f5f1',tx2:'#9bbdb5',tx3:'#5a8078',
+      },
+      fontFamily: {
+        serif:['"DM Serif Display"','serif'],
+        sans:['"Plus Jakarta Sans"','sans-serif'],
+      },
+    }
+  }
+}
+</script>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
+.glass{background:rgba(13,28,24,.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(29,184,150,.18)}
+.card-container{perspective:1000px}
+.swipe-card{transition:transform 0.3s ease, opacity 0.3s ease;cursor:grab}
+.swipe-card:active{cursor:grabbing}
+.swipe-card.swiping-left{transform:translateX(-150%) rotate(-30deg);opacity:0}
+.swipe-card.swiping-right{transform:translateX(150%) rotate(30deg);opacity:0}
+.action-btn{transition:all 0.2s ease}
+.action-btn:hover{transform:scale(1.1)}
+.action-btn:active{transform:scale(0.95)}
+</style>
+</head>
+<body class="bg-bg min-h-screen text-tx overflow-x-hidden">
+<div class="relative z-10 flex flex-col min-h-screen">
+  <header class="glass sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 lg:py-4">
+    <div class="flex items-center gap-2 cursor-pointer flex-shrink-0" onclick="window.location.href='/'">
+      <svg width="110" height="30" viewBox="0 0 240 60" fill="none">
+        <path d="M44 10 C24 10 8 21 8 35 C8 49 24 56 44 56" stroke="#1db896" stroke-width="7" stroke-linecap="round" fill="none"/>
+        <ellipse cx="9" cy="35" rx="7" ry="9" fill="#1db896"/>
+        <path d="M9 44 L6 53 L9 49 L12 53 Z" fill="#1db896"/>
+        <circle cx="9" cy="33" r="3" fill="#050f0c"/>
+        <rect x="8" y="35.5" width="2" height="4" rx="1" fill="#050f0c"/>
+        <path d="M56 12 L56 48 M56 30 Q63 21 73 30 L73 48" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M82 36 Q82 24 93 24 Q103 24 103 33 L82 33 M82 36 Q82 48 93 48" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+        <path d="M130 28 Q120 20 111 33 Q102 46 114 47 Q122 47 130 40" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+        <path d="M150 24 Q137 24 137 35 Q137 47 150 47 Q163 47 163 35 Q163 28 158 25 M161 44 L170 54" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+        <circle cx="178" cy="18" r="4" fill="#1db896"/>
+        <line x1="178" y1="27" x2="178" y2="48" stroke="#1db896" stroke-width="5.5" stroke-linecap="round"/>
+        <path d="M188 48 L188 27 Q188 27 198 38 Q208 48 208 48 L208 27" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+    </div>
+    <nav class="hidden lg:flex items-center gap-6 text-sm font-semibold text-tx2">
+      <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/'">Главная</span>
+      <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/search'">Найти жильё</span>
+      <span class="text-tl cursor-pointer transition-colors" onclick="window.location.href='/hotel_swipe'">Свайп</span>
+      <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/travel_streak'">Серия</span>
+    </nav>
+  </header>
+
+  <div class="flex-1 flex items-center justify-center px-4 py-8">
+    <div class="w-full max-w-md">
+      <h1 class="font-serif text-tx text-center mb-8" style="font-size:clamp(24px,4vw,36px)">Найди свой идеальный отель</h1>
+      
+      <div class="card-container relative h-[500px] mb-6" id="card-container">
+        <div id="loading" class="absolute inset-0 flex items-center justify-center text-tx2">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-tl"></div>
+        </div>
+        <div id="no-hotels" class="absolute inset-0 flex items-center justify-center text-tx2 hidden">
+          <p class="text-center">Больше нет отелей для просмотра</p>
+        </div>
+        <div id="hotel-card" class="swipe-card absolute inset-0 glass rounded-3xl overflow-hidden hidden">
+          <div class="relative h-64">
+            <img id="hotel-image" src="" alt="" class="w-full h-full object-cover">
+            <div class="absolute top-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full">
+              <span id="hotel-rating" class="text-white font-bold">⭐ 4.5</span>
+            </div>
+          </div>
+          <div class="p-6">
+            <h2 id="hotel-name" class="font-serif text-tx text-xl mb-2"></h2>
+            <p id="hotel-location" class="text-tx2 text-sm mb-3"></p>
+            <div id="hotel-vibes" class="flex flex-wrap gap-2 mb-4"></div>
+            <div class="flex items-center justify-between text-sm">
+              <div>
+                <span class="text-tx3">❤️ </span>
+                <span id="hotel-likes" class="text-tx2">0</span>
+                <span class="text-tx3"> хотят сюда</span>
+              </div>
+              <div>
+                <span class="text-tx3">🔥 </span>
+                <span id="hotel-bookings" class="text-tx2">0</span>
+                <span class="text-tx3"> бронирований</span>
+              </div>
+            </div>
+            <div class="mt-4 pt-4 border-t border-white/10">
+              <span id="hotel-price" class="text-tl font-bold text-2xl"></span>
+              <span class="text-tx3 text-sm"> / ночь</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-center gap-8">
+        <button onclick="skipHotel()" class="action-btn w-16 h-16 rounded-full border-2 border-red-500/50 bg-red-500/10 flex items-center justify-center text-red-400 hover:bg-red-500/20">
+          <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+        <button onclick="likeHotel()" class="action-btn w-20 h-20 rounded-full border-2 border-tl bg-tl/10 flex items-center justify-center text-tl hover:bg-tl/20">
+          <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentHotel = null;
+const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+async function loadNextHotel() {
+  document.getElementById('loading').classList.remove('hidden');
+  document.getElementById('hotel-card').classList.add('hidden');
+  document.getElementById('no-hotels').classList.add('hidden');
+
+  try {
+    const response = await fetch('/hotel_swipe/next');
+    const data = await response.json();
+
+    if (data.message) {
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('no-hotels').classList.remove('hidden');
+      return;
+    }
+
+    currentHotel = data;
+    displayHotel(data);
+  } catch (error) {
+    console.error('Error loading hotel:', error);
+  }
+}
+
+function displayHotel(hotel) {
+  document.getElementById('loading').classList.add('hidden');
+  const card = document.getElementById('hotel-card');
+  card.classList.remove('hidden');
+  card.classList.remove('swiping-left', 'swiping-right');
+
+  document.getElementById('hotel-image').src = hotel.photos[0] || 'https://via.placeholder.com/400x300';
+  document.getElementById('hotel-name').textContent = hotel.name;
+  document.getElementById('hotel-location').textContent = `${hotel.city}, ${hotel.hotel_type}`;
+  document.getElementById('hotel-rating').textContent = `⭐ ${hotel.rating}`;
+  document.getElementById('hotel-likes').textContent = hotel.popularity.likes;
+  document.getElementById('hotel-bookings').textContent = hotel.popularity.bookings_last_month;
+  document.getElementById('hotel-price').textContent = hotel.base_price_per_night;
+
+  const vibesContainer = document.getElementById('hotel-vibes');
+  vibesContainer.innerHTML = hotel.vibes.map(v => 
+    `<span class="px-3 py-1 rounded-full bg-white/10 text-tx2 text-xs">${v.icon} ${v.name}</span>`
+  ).join('');
+}
+
+async function likeHotel() {
+  if (!currentHotel) return;
+
+  const card = document.getElementById('hotel-card');
+  card.classList.add('swiping-right');
+
+  try {
+    await fetch(`/hotel_swipe/like/${currentHotel.id}`, {
+      method: 'POST',
+      headers: { 'X-CSRF-Token': csrfToken, 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    console.error('Error liking hotel:', error);
+  }
+
+  setTimeout(() => loadNextHotel(), 300);
+}
+
+async function skipHotel() {
+  if (!currentHotel) return;
+
+  const card = document.getElementById('hotel-card');
+  card.classList.add('swiping-left');
+
+  try {
+    await fetch(`/hotel_swipe/skip/${currentHotel.id}`, {
+      method: 'POST',
+      headers: { 'X-CSRF-Token': csrfToken, 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    console.error('Error skipping hotel:', error);
+  }
+
+  setTimeout(() => loadNextHotel(), 300);
+}
+
+// Load first hotel on page load
+loadNextHotel();
+</script>
+</body>
+</html>

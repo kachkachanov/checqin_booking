@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checqin — Серия путешествий</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+tailwind.config={theme:{extend:{
+  colors:{tl:'#1db896',tl2:'#15a07f',tl3:'#0d7a60',bg:'#050f0c',bg2:'#091410',bg3:'#0d1c18',bg4:'#122720',tx:'#e8f5f1',tx2:'#9bbdb5',tx3:'#5a8078'},
+  fontFamily:{serif:['"DM Serif Display"','serif'],sans:['"Plus Jakarta Sans"','sans-serif']},
+}}}
+</script>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
+.glass{background:rgba(13,28,24,.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(29,184,150,.18)}
+</style>
+</head>
+<body class="bg-bg min-h-screen text-tx overflow-x-hidden">
+<div class="relative z-10 flex flex-col min-h-screen">
+  <header class="glass sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 lg:py-4">
+    <div class="flex items-center gap-2 cursor-pointer flex-shrink-0" onclick="window.location.href='/'">
+      <svg width="110" height="30" viewBox="0 0 240 60" fill="none">
+        <path d="M44 10 C24 10 8 21 8 35 C8 49 24 56 44 56" stroke="#1db896" stroke-width="7" stroke-linecap="round" fill="none"/>
+        <ellipse cx="9" cy="35" rx="7" ry="9" fill="#1db896"/>
+        <path d="M9 44 L6 53 L9 49 L12 53 Z" fill="#1db896"/>
+        <circle cx="9" cy="33" r="3" fill="#050f0c"/>
+        <rect x="8" y="35.5" width="2" height="4" rx="1" fill="#050f0c"/>
+        <path d="M56 12 L56 48 M56 30 Q63 21 73 30 L73 48" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M82 36 Q82 24 93 24 Q103 24 103 33 L82 33 M82 36 Q82 48 93 48" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+        <path d="M130 28 Q120 20 111 33 Q102 46 114 47 Q122 47 130 40" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+        <path d="M150 24 Q137 24 137 35 Q137 47 150 47 Q163 47 163 35 Q163 28 158 25 M161 44 L170 54" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+        <circle cx="178" cy="18" r="4" fill="#1db896"/>
+        <line x1="178" y1="27" x2="178" y2="48" stroke="#1db896" stroke-width="5.5" stroke-linecap="round"/>
+        <path d="M188 48 L188 27 Q188 27 198 38 Q208 48 208 48 L208 27" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+    </div>
+    <nav class="hidden lg:flex items-center gap-6 text-sm font-semibold text-tx2">
+      <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/'">Главная</span>
+      <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/search'">Найти жильё</span>
+      <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/hotel_swipe'">Свайп</span>
+      <span class="text-tl cursor-pointer transition-colors" onclick="window.location.href='/travel_streak'">Серия</span>
+    </nav>
+  </header>
+
+  <div class="flex-1 px-4 sm:px-6 lg:px-10 py-8 lg:py-12">
+    <div class="max-w-2xl mx-auto">
+      <h1 class="font-serif text-tx mb-2" style="font-size:clamp(28px,4vw,42px)">Серия путешествий</h1>
+      <p class="text-tx2 mb-8">Отслеживайте свои поездки и повышайте уровень</p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <div class="glass rounded-2xl p-6 text-center">
+          <div class="text-tx3 text-xs font-bold uppercase tracking-widest mb-2">Текущая серия</div>
+          <div class="font-serif text-tl" style="font-size:clamp(36px,5vw,48px)"><%= @streak_info[:current] %></div>
+          <div class="text-tx2 text-sm mt-1">мес.</div>
+        </div>
+        <div class="glass rounded-2xl p-6 text-center">
+          <div class="text-tx3 text-xs font-bold uppercase tracking-widest mb-2">Лучший результат</div>
+          <div class="font-serif text-tx" style="font-size:clamp(36px,5vw,48px)"><%= @streak_info[:best] %></div>
+          <div class="text-tx2 text-sm mt-1">мес.</div>
+        </div>
+        <div class="glass rounded-2xl p-6 text-center">
+          <div class="text-tx3 text-xs font-bold uppercase tracking-widest mb-2">Уровень</div>
+          <div class="text-xl font-bold text-tl mt-2"><%= @streak_info[:level][:name] %></div>
+        </div>
+      </div>
+
+      <div class="glass rounded-2xl p-6 mb-6">
+        <div class="text-tx3 text-xs font-bold uppercase tracking-widest mb-4">Прогресс уровней</div>
+        <div class="space-y-4">
+          <% levels = [
+            { name: 'Новичок', min: 0, emoji: '🌱' },
+            { name: 'Исследователь', min: 3, emoji: '🧭' },
+            { name: 'Путешественник', min: 6, emoji: '✈️' },
+            { name: 'Легенда путешествий', min: 12, emoji: '👑' }
+          ] %>
+          <% current_level = @streak_info[:level][:level] %>
+          <% levels.each_with_index do |level, idx| %>
+            <% achieved = idx <= current_level %>
+            <div class="flex items-center gap-4 p-3 rounded-xl transition-all <%= achieved ? 'bg-tl/10 border border-tl/20' : 'bg-white/[.02] border border-white/5 opacity-50' %>">
+              <div class="text-2xl"><%= level[:emoji] %></div>
+              <div class="flex-1">
+                <div class="font-semibold text-sm <%= achieved ? 'text-tx' : 'text-tx3' %>"><%= level[:name] %></div>
+                <div class="text-xs text-tx3"><%= level[:min] %> мес. серии</div>
+              </div>
+              <% if achieved %>
+                <div class="w-6 h-6 rounded-full bg-tl flex items-center justify-center">
+                  <svg class="w-3.5 h-3.5 text-bg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <% if @streak_info[:next_level] %>
+        <div class="glass rounded-2xl p-6 text-center">
+          <div class="text-tx3 text-xs font-bold uppercase tracking-widest mb-2">Следующий уровень</div>
+          <div class="font-serif text-tl text-2xl mb-2"><%= @streak_info[:next_level][:name] %></div>
+          <div class="text-tx2 text-sm">Осталось <span class="text-tl font-bold"><%= @streak_info[:next_level][:months_needed] %></span> мес. серии</div>
+          <div class="mt-4 w-full bg-white/5 rounded-full h-2">
+            <% progress = @streak_info[:next_level][:months_needed] > 0 ? ((@streak_info[:current].to_f / (@streak_info[:current] + @streak_info[:next_level][:months_needed])) * 100).round : 100 %>
+            <div class="bg-tl h-2 rounded-full transition-all" style="width:<%= progress %>%"></div>
+          </div>
+        </div>
+      <% else %>
+        <div class="glass rounded-2xl p-6 text-center">
+          <div class="text-4xl mb-3">🏆</div>
+          <div class="font-serif text-tx text-2xl mb-2">Максимальный уровень!</div>
+          <div class="text-tx2 text-sm">Вы достигли уровня «Легенда путешествий»</div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+</body>
+</html>

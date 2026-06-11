@@ -67,8 +67,9 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
     </div>
     <nav class="hidden lg:flex items-center gap-6 text-sm font-semibold text-tx2">
       <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/'">Главная</span>
-      <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/search'">Найти жильё</span>
-      <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/favorites'">Избранное</span>
+      <span class="text-tl cursor-pointer transition-colors" onclick="window.location.href='/search'">Найти жильё</span>
+      <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/hotel_swipe'">Свайп</span>
+      <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/travel_streak'">Серия</span>
       <% if user_signed_in? %>
         <% if current_user.supervisor? %>
           <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/supervisor'">Супервайзор</span>
@@ -99,9 +100,32 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
       class="w-9 h-9 rounded-[11px] border border-white/10 bg-white/[.04] text-tx2 flex items-center justify-center flex-shrink-0 transition-all hover:border-tl hover:text-tl">
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
     </button>
+
     <div class="flex-1 min-w-0">
-      <div class="font-bold text-tx truncate" id="res-city" style="font-size:clamp(14px,1.6vw,18px)"><%= @city.presence || 'Все объекты' %></div>
-      <div class="text-tx3 mt-0.5" id="res-info" style="font-size:clamp(10px,1.1vw,12px)">
+      <form method="get" action="<%= search_hotels_path %>" class="flex items-center gap-2">
+        <input
+          type="text"
+          name="city"
+          value="<%= @city %>"
+          placeholder="Город, отель или аэропорт…"
+          class="w-full bg-transparent border border-white/10 rounded-xl px-4 py-2 text-sm text-tx2 placeholder:text-tx3 focus:outline-none focus:border-tl"
+        />
+
+        <%= hidden_field_tag :checkin, @checkin&.to_date %>
+        <%= hidden_field_tag :checkout, @checkout&.to_date %>
+        <%= hidden_field_tag :guests, @guests %>
+
+        <button type="submit" class="shrink-0 px-4 py-2 rounded-xl bg-tl/10 border border-tl text-tx2 font-semibold text-sm hover:border-tl hover:bg-tl/15 transition-all">
+          Найти
+        </button>
+      </form>
+
+      <div class="text-[11px] text-tx3 mt-1">
+        Запрос города: <span class="text-tx2"><%= @city.presence || '—' %></span>
+        · Найдено объектов: <span class="text-tx2"><%= @listings.size %></span>
+      </div>
+
+      <div class="text-tx3 mt-2" id="res-info" style="font-size:clamp(10px,1.1vw,12px)">
         <% if @checkin && @checkout %>
           <%= @checkin %> — <%= @checkout %><%= " · #{@guests} гост." if @guests.to_i.positive? %>
         <% else %>
@@ -156,6 +180,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
 
 <%= render 'shared/smart_panel' %>
 <%= render 'shared/favorite_scripts' %>
+<%= render 'shared/dream_scripts' %>
 
 <script>
 (function(){

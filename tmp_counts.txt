@@ -1,0 +1,6 @@
+Hotel_total=4
+Hotel_active=4
+Property_total=1
+Property_active=1
+Room_total=0
+Room_available=0

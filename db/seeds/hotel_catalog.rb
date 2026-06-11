@@ -194,7 +194,7 @@ module HotelCatalogSeeder
       hotel_type: 'Гостевой дом',
       city: 'Краснодар',
       address: 'ул. Красная, 120',
-      description: 'Гостевой дом с садом, домашней кухней и терrace для завтраков. Спокойное место для остановки перед поездкой в горы.',
+      description: 'Гостевой дом с садом, домашней кухней и terrase для завтраков. Спокойное место для остановки перед поездкой в горы.',
       rating: 4.4,
       base_price_per_night: 3200,
       email: 'caucasus@checqin.local'
@@ -234,10 +234,354 @@ module HotelCatalogSeeder
     }
   ].freeze
 
+  # >= 20 жилых объектов
+  NEW_PROPERTIES = [
+    {
+      slug: 'arbat-modern-apart',
+      name: 'Arbat Modern Apart',
+      property_type: 'Квартира',
+      city: 'Москва',
+      address: 'ул. Арбат, 9',
+      description: 'Светлые апартаменты с рабочей зоной, полностью оборудованной кухней и быстрым Wi-Fi.',
+      guests_capacity: 4,
+      rooms_count: 2,
+      area: 52,
+      base_price_per_night: 6200,
+      email: 'arbat@checqin.local'
+    },
+    {
+      slug: 'nevsky-loft-studio',
+      name: 'Nevsky Loft Studio',
+      property_type: 'Апартаменты',
+      city: 'Санкт-Петербург',
+      address: 'ул. Невский пр., 77',
+      description: 'Лофт-студия с высокими потолками, панорамными окнами и кухней-студией.',
+      guests_capacity: 2,
+      rooms_count: 1,
+      area: 28,
+      base_price_per_night: 4300,
+      email: 'neva@checqin.local'
+    },
+    {
+      slug: 'kazan-family-flat',
+      name: 'Kazan Family Flat',
+      property_type: 'Семейный дом',
+      city: 'Казань',
+      address: 'ул. Баумана, 3',
+      description: 'Уютный семейный объект: две комнаты, большая гостиная и зона для отдыха.',
+      guests_capacity: 5,
+      rooms_count: 3,
+      area: 74,
+      base_price_per_night: 5900,
+      email: 'kazan-f@checqin.local'
+    },
+    {
+      slug: 'kazkrem-canal-view',
+      name: 'Canal View at Kremlin',
+      property_type: 'Апартаменты',
+      city: 'Казань',
+      address: 'ул. Кремлёвская, 18',
+      description: 'Вид на историческую часть города, тихий двор и удобное расположение.',
+      guests_capacity: 3,
+      rooms_count: 2,
+      area: 46,
+      base_price_per_night: 5200,
+      email: 'kremlin-view@checqin.local'
+    },
+    {
+      slug: 'sochi-sea-breeze',
+      name: 'Sochi Sea Breeze',
+      property_type: 'Дом у моря',
+      city: 'Сочи',
+      address: 'ул. Приморская, 21',
+      description: 'Дом с террасой и видом на море, идеален для семейного отдыха.',
+      guests_capacity: 6,
+      rooms_count: 3,
+      area: 98,
+      base_price_per_night: 8200,
+      email: 'sea-breeze@checqin.local'
+    },
+    {
+      slug: 'ekb-business-suites',
+      name: 'EKB Business Suites',
+      property_type: 'Апартаменты',
+      city: 'Екатеринбург',
+      address: 'ул. Малышева, 56',
+      description: 'Комфортные апартаменты для командировок: быстрый интернет и тишина.',
+      guests_capacity: 3,
+      rooms_count: 2,
+      area: 44,
+      base_price_per_night: 4800,
+      email: 'ekb-suites@checqin.local'
+    },
+    {
+      slug: 'vladimir-heritage-house',
+      name: 'Vladimir Heritage House',
+      property_type: 'Дом',
+      city: 'Владимир',
+      address: 'ул. Большая Московская, 15',
+      description: 'Исторический стиль, просторные комнаты и домашняя атмосфера.',
+      guests_capacity: 4,
+      rooms_count: 2,
+      area: 61,
+      base_price_per_night: 4100,
+      email: 'vlad-house@checqin.local'
+    },
+    {
+      slug: 'kaliningrad-baltic-flat',
+      name: 'Baltic Flat Kaliningrad',
+      property_type: 'Апартаменты',
+      city: 'Калининград',
+      address: 'пр. Мира, 15',
+      description: 'В нескольких минутах от набережной, с балконом и видом на город.',
+      guests_capacity: 3,
+      rooms_count: 2,
+      area: 39,
+      base_price_per_night: 3700,
+      email: 'kaliningrad-b@checqin.local'
+    },
+    {
+      slug: 'nsk-green-courtyard',
+      name: 'Green Courtyard Residence',
+      property_type: 'Коттедж',
+      city: 'Новосибирск',
+      address: 'Красный пр., 41',
+      description: 'Дом с двориком: место для барбекю, зона отдыха и большая кухня.',
+      guests_capacity: 6,
+      rooms_count: 3,
+      area: 112,
+      base_price_per_night: 7600,
+      email: 'nsk-court@checqin.local'
+    },
+    {
+      slug: 'murmansk-north-lodge',
+      name: 'North Lodge Murmansk',
+      property_type: 'Лофт-дом',
+      city: 'Мурманск',
+      address: 'пр. Ленина, 64',
+      description: 'Теплый интерьер, панорамные окна и уютная гостиная зона.',
+      guests_capacity: 4,
+      rooms_count: 2,
+      area: 58,
+      base_price_per_night: 5100,
+      email: 'north-lodge@checqin.local'
+    },
+    {
+      slug: 'irkutsk-baikal-cabin',
+      name: 'Baikal Cabin',
+      property_type: 'Дом',
+      city: 'Иркутск',
+      address: 'ул. Карла Маркса, 8',
+      description: 'Комфортный дом с камином и атмосферой путешествий к Байкалу.',
+      guests_capacity: 5,
+      rooms_count: 3,
+      area: 86,
+      base_price_per_night: 6900,
+      email: 'baikal-cabin@checqin.local'
+    },
+    {
+      slug: 'rostov-garden-suite',
+      name: 'Garden Suite Rostov',
+      property_type: 'Апартаменты',
+      city: 'Ростов-на-Дону',
+      address: 'ул. Садовая, 12',
+      description: 'Апартаменты с садом и уединением, свежий ремонт и удобная транспортная доступность.',
+      guests_capacity: 3,
+      rooms_count: 2,
+      area: 45,
+      base_price_per_night: 3900,
+      email: 'rostov-g@checqin.local'
+    },
+    {
+      slug: 'krasnodar-caucasus-house',
+      name: 'Caucasus House',
+      property_type: 'Дом',
+      city: 'Краснодар',
+      address: 'ул. Красная, 140',
+      description: 'Тихий дом с кухней, верандой и комнатами для больших компаний.',
+      guests_capacity: 6,
+      rooms_count: 3,
+      area: 103,
+      base_price_per_night: 7200,
+      email: 'caucasus-house@checqin.local'
+    },
+    {
+      slug: 'nn-volga-loft',
+      name: 'Volga Loft NN',
+      property_type: 'Апартаменты',
+      city: 'Нижний Новгород',
+      address: 'ул. Рождественская, 26',
+      description: 'Лофт с видом на Волгу, стильный интерьер и удобная планировка.',
+      guests_capacity: 4,
+      rooms_count: 2,
+      area: 55,
+      base_price_per_night: 4600,
+      email: 'volga-loft@checqin.local'
+    },
+    {
+      slug: 'sochi-family-cottage',
+      name: 'Family Cottage Sochi',
+      property_type: 'Коттедж',
+      city: 'Сочи',
+      address: 'ул. Курортная, 5',
+      description: 'Коттедж для семьи: просторные спальни, детская зона и терраса.',
+      guests_capacity: 7,
+      rooms_count: 4,
+      area: 126,
+      base_price_per_night: 9100,
+      email: 'family-cottage@checqin.local'
+    },
+    {
+      slug: 'spb-heritage-apartment',
+      name: 'Heritage Apartment SPB',
+      property_type: 'Апартаменты',
+      city: 'Санкт-Петербург',
+      address: 'наб. реки Мойки, 9',
+      description: 'Объект в историческом стиле рядом с достопримечательностями.',
+      guests_capacity: 3,
+      rooms_count: 2,
+      area: 41,
+      base_price_per_night: 5200,
+      email: 'moika-ap@checqin.local'
+    },
+    {
+      slug: 'ekb-modern-flat',
+      name: 'Modern Flat Ekb',
+      property_type: 'Квартира',
+      city: 'Екатеринбург',
+      address: 'ул. Челюскинцев, 18',
+      description: 'Современная квартира с удобным рабочим местом и гардеробной.',
+      guests_capacity: 2,
+      rooms_count: 1,
+      area: 33,
+      base_price_per_night: 3600,
+      email: 'modern-flat@checqin.local'
+    },
+    {
+      slug: 'vlg-volga-view',
+      name: 'Volga View Apartment',
+      property_type: 'Апартаменты',
+      city: 'Волгоград',
+      address: 'ул. Комсомольская, 22',
+      description: 'Вид на набережную, уютная спальня и гостиная зона.',
+      guests_capacity: 4,
+      rooms_count: 2,
+      area: 57,
+      base_price_per_night: 3000,
+      email: 'volga-view@checqin.local'
+    },
+    {
+      slug: 'ufa-city-center-stay',
+      name: 'City Center Stay Ufa',
+      property_type: 'Квартира',
+      city: 'Уфа',
+      address: 'ул. Ленина, 101',
+      description: 'Удобно для путешествий: рядом транспорт и инфраструктура.',
+      guests_capacity: 3,
+      rooms_count: 2,
+      area: 40,
+      base_price_per_night: 3200,
+      email: 'ufa-center@checqin.local'
+    },
+    {
+      slug: 'perm-forest-escape',
+      name: 'Forest Escape Perm',
+      property_type: 'Дом',
+      city: 'Пермь',
+      address: 'ул. Лесная, 7',
+      description: 'Дом в окружении леса с террасой и атмосферой спокойствия.',
+      guests_capacity: 5,
+      rooms_count: 3,
+      area: 92,
+      base_price_per_night: 4400,
+      email: 'perm-forest@checqin.local'
+    }
+  ].freeze
+
   def seed!
     NEW_HOTELS.each { |attrs| upsert_hotel!(attrs) }
     Hotel.active.find_each { |hotel| enrich_hotel!(hotel) }
+
+    errors = []
+
+    NEW_PROPERTIES.each do |attrs|
+      begin
+        upsert_property!(attrs, skip_photos: true)
+      rescue StandardError => e
+        errors << "#{attrs[:slug]}: #{e.class} #{e.message}"
+      end
+    end
+
+    # гарантируем минимум 20 Property (без фото, чтобы не зависеть от внешнего URI)
+    target = 20
+    remaining = target - Property.count
+    if remaining.positive?
+      remaining.times do |i|
+        begin
+          slug = "auto-property-#{i + 1}-#{Time.current.to_i}"
+          upsert_property!(
+            {
+              slug: slug,
+              name: "Auto Property #{Property.count + i + 1}",
+              property_type: 'Квартира',
+              city: 'Москва',
+              address: "ул. Тестовая, #{10 + i}",
+              description: 'Автосид для теста.',
+              guests_capacity: 2,
+              rooms_count: 1,
+              area: 30,
+              base_price_per_night: 4000,
+              email: "auto-#{slug}@checqin.local"
+            },
+            skip_photos: true
+          )
+        rescue StandardError => e
+          errors << "#{slug}: #{e.class} #{e.message}"
+        end
+      end
+    end
+
     puts "Catalog ready: #{Hotel.active.count} active hotels, #{Room.count} rooms"
+    puts "Catalog ready: #{Property.count} properties"
+    puts "Catalog property errors: #{errors.size}" if errors.any?
+
+    assign_vibes_to_hotels!
+  end
+
+  VIBE_RULES = {
+    'Grand Checqin Москва'      => %w[INSTAGRAM RELAX],
+    'Петровский двор'            => %w[RELAX INSTAGRAM],
+    'Volga Residence'            => %w[WORKATION BUDGET],
+    'Baltic View'                => %w[INSTAGRAM RELAX],
+    'Ural Plaza'                 => %w[WORKATION],
+    'Siberia Lux'                => %w[RELAX],
+    'Golden Ring Inn'            => %w[INSTAGRAM BUDGET],
+    'Таврида Sun'                => %w[RELAX PARTY],
+    'Neva Loft'                  => %w[INSTAGRAM],
+    'Kazan Kremlin Hotel'        => %w[WORKATION INSTAGRAM],
+    'Forest Glamping'            => %w[RELAX INSTAGRAM],
+    'Vita Sanatorium'            => %w[RELAX],
+    'Travel Hostel'              => %w[BUDGET WORKATION],
+    'Lake Baikal Lodge'          => %w[RELAX INSTAGRAM],
+    'Aurora Business'            => %w[WORKATION],
+    'Hermitage Suites'           => %w[INSTAGRAM RELAX],
+    'Caucasus Retreat'           => %w[RELAX BUDGET],
+    'Volga Hostel'               => %w[BUDGET INSTAGRAM],
+    'Polar Star'                 => %w[INSTAGRAM],
+    'Riviera Palm'               => %w[RELAX PARTY]
+  }.freeze
+
+  def assign_vibes_to_hotels!
+    HotelVibe.delete_all
+
+    Hotel.active.find_each do |hotel|
+      vibe_names = VIBE_RULES[hotel.name] || Vibe::VIBES.sample(rand(1..2))
+      vibe_names.each do |name|
+        vibe = Vibe.find_by(name: name)
+        HotelVibe.find_or_create_by(hotel: hotel, vibe: vibe) if vibe
+      end
+    end
+    puts "Vibes assigned to hotels: #{HotelVibe.count} associations"
   end
 
   def upsert_hotel!(attrs)
@@ -327,6 +671,36 @@ module HotelCatalogSeeder
     end
   end
 
+  # -------- Properties seeding --------
+
+  def upsert_property!(attrs, skip_photos: false)
+    seed = attrs.fetch(:slug)
+    data = attrs.except(:slug).merge(status: 'active', **AVAILABILITY)
+
+    # Idempotent по (name, city)
+    property = Property.find_or_initialize_by(name: data[:name], city: data[:city])
+    property.assign_attributes(data)
+
+    # photos attach (required by model validations only if attached? -> it's conditional)
+    property.save!
+    attach_property_photos!(property, seed) unless skip_photos
+    puts "Property: #{property.name} (#{property.city})"
+    property
+  end
+
+  def attach_property_photos!(property, seed, count: 2)
+    return if property.photos.count >= count
+
+    (property.photos.count...count).each do |index|
+      attach_photo_from_url(
+        property,
+        "https://picsum.photos/seed/property-#{seed}-#{index}/960/640",
+        filename: "property-#{seed}-#{index}.jpg",
+        content_type: 'image/jpeg'
+      )
+    end
+  end
+
   def attach_photo_from_url(record, url, filename:, content_type:)
     io = URI.open(url, read_timeout: 20, open_timeout: 10, 'User-Agent' => 'ChecqinSeeder/1.0')
     record.photos.attach(io: io, filename: filename, content_type: content_type)
@@ -336,4 +710,5 @@ module HotelCatalogSeeder
   end
 end
 
+# Seed trigger
 HotelCatalogSeeder.seed!

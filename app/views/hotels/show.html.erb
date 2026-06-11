@@ -79,7 +79,37 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
     <div class="grid lg:grid-cols-3 gap-6">
       <div class="lg:col-span-2 space-y-6">
         <section class="glass rounded-2xl p-5 sm:p-6">
-          <h2 class="font-serif text-tx text-xl mb-3">Об отеле</h2>
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="font-serif text-tx text-xl">Об отеле</h2>
+            <div class="flex items-center gap-2">
+              <% if user_signed_in? %>
+                <button onclick="toggleDream(<%= @hotel.id %>)" id="dream-btn-<%= @hotel.id %>"
+                  class="px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all <%= hotel_in_dream_list?(@hotel) ? 'border-tl bg-tl/10 text-tl' : 'border-white/10 bg-white/[.04] text-tx2 hover:border-tl hover:text-tl' %>">
+                  <%= hotel_in_dream_list?(@hotel) ? '★ Мечта' : '☆ В места мечты' %>
+                </button>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4 mb-4 p-3 rounded-xl bg-white/[.03] border border-white/5">
+            <div class="flex items-center gap-1.5 text-sm">
+              <span class="text-tx3">❤️</span>
+              <span class="text-tx font-semibold"><%= @hotel.likes_count %></span>
+              <span class="text-tx3">хотят сюда</span>
+            </div>
+            <div class="w-px h-4 bg-white/10"></div>
+            <div class="flex items-center gap-1.5 text-sm">
+              <span class="text-tx3">⭐</span>
+              <span class="text-tx font-semibold"><%= @hotel.dream_hotels_count %></span>
+              <span class="text-tx3">в списках мечты</span>
+            </div>
+            <div class="w-px h-4 bg-white/10"></div>
+            <div class="flex items-center gap-1.5 text-sm">
+              <span class="text-tx3">🔥</span>
+              <span class="text-tx font-semibold"><%= @hotel.bookings_count_last_month %></span>
+              <span class="text-tx3">бронирований</span>
+            </div>
+          </div>
           <p class="text-tx2 text-sm leading-relaxed">
             <%= @hotel.description.presence || "Уютный #{@hotel.hotel_type.downcase} в #{@hotel.city}. Идеально для деловых поездок и отдыха. На территории — круглосуточная стойка регистрации, бесплатный Wi‑Fi и комфортные номера." %>
           </p>
@@ -205,6 +235,33 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
   window.addEventListener('resize',resize);
   function draw(){ctx.clearRect(0,0,W,H);orbs.forEach(o=>{const ox=W*o.x,oy=H*o.y,r=Math.min(W,H)*o.r,g=ctx.createRadialGradient(ox,oy,0,ox,oy,r);g.addColorStop(0,o.col);g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(ox,oy,r,0,Math.PI*2);ctx.fill()});t++;requestAnimationFrame(draw)}draw();
 })();
+
+async function toggleDream(hotelId) {
+  const btn = document.getElementById('dream-btn-' + hotelId);
+  const isDream = btn.textContent.includes('Мечта');
+  const token = document.querySelector('meta[name="csrf-token"]')?.content;
+
+  try {
+    if (isDream) {
+      await fetch('/dream_hotels/' + hotelId, {
+        method: 'DELETE',
+        headers: { 'X-CSRF-Token': token, 'Accept': 'application/json' }
+      });
+      btn.textContent = '☆ В места мечты';
+      btn.className = 'px-3 py-1.5 rounded-xl border border-white/10 bg-white/[.04] text-tx2 text-xs font-semibold transition-all hover:border-tl hover:text-tl';
+    } else {
+      await fetch('/dream_hotels', {
+        method: 'POST',
+        headers: { 'X-CSRF-Token': token, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ hotel_id: hotelId })
+      });
+      btn.textContent = '★ Мечта';
+      btn.className = 'px-3 py-1.5 rounded-xl border border-tl bg-tl/10 text-tl text-xs font-semibold transition-all';
+    }
+  } catch (e) {
+    console.error('Dream toggle error:', e);
+  }
+}
 
 const defaultPrice = <%= @hotel.display_price.to_i %>;
 const currencySymbol = '<%= CurrencyHelper::CURRENCIES[current_currency_code][:symbol] %>';

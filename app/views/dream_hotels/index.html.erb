@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="csrf-token" content="<%= form_authenticity_token %>">
+<title>Checqin — Места мечты</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        tl:'#1db896',tl2:'#15a07f',tl3:'#0d7a60',
+        bg:'#050f0c',bg2:'#091410',bg3:'#0d1c18',bg4:'#122720',
+        tx:'#e8f5f1',tx2:'#9bbdb5',tx3:'#5a8078',
+      },
+      fontFamily: {
+        serif:['"DM Serif Display"','serif'],
+        sans:['"Plus Jakarta Sans"','sans-serif'],
+      },
+    }
+  }
+}
+</script>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
+.glass{background:rgba(13,28,24,.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(29,184,150,.18)}
+.hcard-wrap{transition:transform .25s}
+.hcard-wrap:hover{transform:translateY(-4px)}
+</style>
+</head>
+<body class="bg-bg min-h-screen text-tx overflow-x-hidden">
+<div class="relative z-10 flex flex-col min-h-screen">
+  <header class="glass sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 lg:py-4">
+    <div class="flex items-center gap-2 cursor-pointer flex-shrink-0" onclick="window.location.href='/'">
+      <svg width="110" height="30" viewBox="0 0 240 60" fill="none">
+        <path d="M44 10 C24 10 8 21 8 35 C8 49 24 56 44 56" stroke="#1db896" stroke-width="7" stroke-linecap="round" fill="none"/>
+        <ellipse cx="9" cy="35" rx="7" ry="9" fill="#1db896"/>
+        <path d="M9 44 L6 53 L9 49 L12 53 Z" fill="#1db896"/>
+        <circle cx="9" cy="33" r="3" fill="#050f0c"/>
+        <rect x="8" y="35.5" width="2" height="4" rx="1" fill="#050f0c"/>
+        <path d="M56 12 L56 48 M56 30 Q63 21 73 30 L73 48" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M82 36 Q82 24 93 24 Q103 24 103 33 L82 33 M82 36 Q82 48 93 48" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+        <path d="M130 28 Q120 20 111 33 Q102 46 114 47 Q122 47 130 40" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+        <path d="M150 24 Q137 24 137 35 Q137 47 150 47 Q163 47 163 35 Q163 28 158 25 M161 44 L170 54" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+        <circle cx="178" cy="18" r="4" fill="#1db896"/>
+        <line x1="178" y1="27" x2="178" y2="48" stroke="#1db896" stroke-width="5.5" stroke-linecap="round"/>
+        <path d="M188 48 L188 27 Q188 27 198 38 Q208 48 208 48 L208 27" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+    </div>
+    <nav class="hidden lg:flex items-center gap-6 text-sm font-semibold text-tx2">
+      <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/'">Главная</span>
+      <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/search'">Найти жильё</span>
+      <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/hotel_swipe'">Свайп</span>
+      <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/travel_streak'">Серия</span>
+    </nav>
+  </header>
+
+  <div class="flex-1 px-4 sm:px-6 lg:px-10 py-8 lg:py-12">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <h1 class="font-serif text-tx mb-2" style="font-size:clamp(28px,4vw,42px)">Мои места мечты</h1>
+          <p class="text-tx2">Отели, которые вы хотите посетить</p>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="text-tx2 text-sm">
+            <span id="dream-count" class="text-tl font-bold">0</span> мест
+          </div>
+          <button onclick="window.location.href='/search'" class="px-4 py-2 rounded-xl border border-white/10 bg-white/5 text-tx2 hover:border-tl hover:text-tl transition-all">
+            + Добавить отель
+          </button>
+        </div>
+      </div>
+
+      <div id="loading" class="flex items-center justify-center py-20">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-tl"></div>
+      </div>
+
+      <div id="empty-state" class="hidden text-center py-20">
+        <div class="text-6xl mb-4">✨</div>
+        <h2 class="font-serif text-tx text-2xl mb-2">Пока пусто</h2>
+        <p class="text-tx2 mb-6">Добавьте отели в список мечтаний</p>
+        <button onclick="window.location.href='/search'" class="px-6 py-3 rounded-2xl bg-tl text-bg font-bold hover:bg-tl2 transition-all">
+          Найти отели
+        </button>
+      </div>
+
+      <div id="hotels-grid" class="grid md:grid-cols-2 xl:grid-cols-3 gap-6 hidden"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+async function loadDreamHotels() {
+  document.getElementById('loading').classList.remove('hidden');
+  document.getElementById('empty-state').classList.add('hidden');
+  document.getElementById('hotels-grid').classList.add('hidden');
+
+  try {
+    const response = await fetch('/dream_hotels');
+    const hotels = await response.json();
+
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('dream-count').textContent = hotels.length;
+
+    if (hotels.length === 0) {
+      document.getElementById('empty-state').classList.remove('hidden');
+      return;
+    }
+
+    const grid = document.getElementById('hotels-grid');
+    grid.innerHTML = hotels.map(hotel => `
+      <div class="hcard-wrap glass rounded-2xl overflow-hidden">
+        <div class="relative h-48">
+          <img src="${hotel.photos[0] || 'https://via.placeholder.com/400x300'}" alt="${hotel.name}" class="w-full h-full object-cover">
+          <button onclick="removeFromDreams(${hotel.id})" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-white hover:bg-red-500/80 transition-all">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+        <div class="p-4">
+          <h3 class="font-serif text-tx text-lg mb-1">${hotel.name}</h3>
+          <p class="text-tx2 text-sm mb-3">${hotel.city}, ${hotel.hotel_type}</p>
+          <div class="flex flex-wrap gap-2 mb-3">
+            ${hotel.vibes.map(v => `<span class="px-2 py-1 rounded-full bg-white/10 text-tx2 text-xs">${v.icon} ${v.name}</span>`).join('')}
+          </div>
+          <div class="flex items-center justify-between text-sm">
+            <div>
+              <span class="text-tx3">❤️ </span>
+              <span class="text-tx2">${hotel.popularity.likes}</span>
+            </div>
+            <div class="text-tl font-bold">${hotel.base_price_per_night} ₽ / ночь</div>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    grid.classList.remove('hidden');
+  } catch (error) {
+    console.error('Error loading dream hotels:', error);
+    document.getElementById('loading').classList.add('hidden');
+  }
+}
+
+async function removeFromDreams(hotelId) {
+  if (!confirm('Удалить из списка мечтаний?')) return;
+
+  try {
+    await fetch(`/dream_hotels/${hotelId}`, { method: 'DELETE' });
+    loadDreamHotels();
+  } catch (error) {
+    console.error('Error removing from dreams:', error);
+  }
+}
+
+// Load dream hotels on page load
+loadDreamHotels();
+</script>
+</body>
+</html>

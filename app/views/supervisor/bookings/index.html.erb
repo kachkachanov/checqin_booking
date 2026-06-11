@@ -1,0 +1,69 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="flex items-center justify-between gap-4 mb-8">
+    <div class="flex items-start gap-4">
+      <%= link_to '← На главную', supervisor_root_path, class: "shrink-0 px-4 py-2 rounded-xl border border-white/10 bg-white/[.04] text-tx2 font-semibold text-sm hover:border-tl hover:text-tl transition-all" %>
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-[1.4px] text-[#1db896] border border-[#1db896]/30 bg-[#1db896]/10 mb-3">
+          Supervisor
+        </div>
+        <h1 class="text-3xl sm:text-4xl" style="font-family:'DM Serif Display',serif">Бронирования</h1>
+        <p class="text-sm text-[#9bbdb5] mt-2">Подтвержденные бронирования по вашим объектам</p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3 text-sm text-[#9bbdb5]">
+      <span>
+        Выполняет:
+        <span class="text-[#e8f5f1] font-semibold"><%= current_user.email %></span>
+      </span>
+    </div>
+  </div>
+
+  <div class="rounded-3xl border border-white/10 bg-white/5 p-5">
+    <div class="flex items-center justify-between mb-5">
+      <h2 class="text-2xl" style="font-family:'DM Serif Display',serif">Список</h2>
+      <span class="text-sm text-[#9bbdb5]"><%= @bookings.size %> шт.</span>
+    </div>
+
+    <% if @bookings.any? %>
+      <div class="space-y-3">
+        <% @bookings.each do |booking| %>
+          <div class="rounded-2xl border border-white/10 bg-[#091410] p-4">
+            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+              <div>
+                <div class="font-semibold text-lg"><%= booking.hotel.name %></div>
+                <div class="text-sm text-[#9bbdb5] mt-1"><%= booking.hotel.city %></div>
+
+                <div class="text-xs text-[#5a8078] mt-2">
+                  Номер:
+                  <span class="text-[#e8f5f1] font-semibold"><%= booking.room_name %></span>
+                </div>
+
+                <div class="text-xs text-[#5a8078] mt-1">
+                  Заезд:
+                  <span class="text-[#e8f5f1] font-semibold"><%= l(booking.check_in, format: '%d.%m.%Y') %></span>
+                </div>
+
+                <div class="text-xs text-[#5a8078] mt-1">
+                  Выезд:
+                  <span class="text-[#e8f5f1] font-semibold"><%= l(booking.check_out, format: '%d.%m.%Y') %></span>
+                </div>
+              </div>
+
+              <div class="text-right">
+                <div class="font-serif text-tl text-xl"><%= format_hotel_price(booking.total_price) %></div>
+                <span class="inline-block mt-2 px-3 py-1 rounded-full text-xs font-bold bg-green-400/15 text-green-300">
+                  Подтверждено
+                </span>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="rounded-2xl border border-dashed border-white/10 bg-[#091410] p-10 text-center text-sm text-[#9bbdb5]">
+        Нет подтвержденных бронирований по вашим объектам.
+      </div>
+    <% end %>
+  </div>
+</div>

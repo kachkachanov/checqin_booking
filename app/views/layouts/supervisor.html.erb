@@ -11,7 +11,9 @@
   <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
   <%= javascript_importmap_tags %>
 </head>
-<body>
-  <%= yield %>
+<body class="bg-[#050f0c] text-[#e8f5f1] min-h-screen">
+  <div class="min-h-screen">
+    <%= yield %>
+  </div>
 </body>
 </html>

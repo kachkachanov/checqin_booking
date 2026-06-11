@@ -5,14 +5,22 @@ class HotelsController < ApplicationController
   def index
     @listings = AccommodationSearch.new(browse_all: true).call.first(3)
     @popular_cities = AccommodationSearch.popular_cities
+    @vibes = Vibe.all
   end
 
   def search
     @city = params[:city].presence
-    @checkin = parse_date(params[:checkin])
-    @checkout = parse_date(params[:checkout])
-    @guests = params[:guests].presence&.to_i
-    browse_all = params[:checkin].blank? && params[:checkout].blank? && @guests.blank?
+
+    # нормализуем поля, чтобы browse_all корректно определялся
+    @checkin = params[:checkin].presence
+    @checkout = params[:checkout].presence
+    @guests = params[:guests].presence
+
+    @checkin = parse_date(@checkin)
+    @checkout = parse_date(@checkout)
+    @guests = @guests.to_i if @guests.present?
+
+    browse_all = @checkin.blank? && @checkout.blank? && @guests.blank?
 
     search = AccommodationSearch.new(
       city: @city,

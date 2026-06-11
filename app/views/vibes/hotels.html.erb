@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="csrf-token" content="<%= form_authenticity_token %>">
+<title>Checqin — Отели по вайбу</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        tl:'#1db896',tl2:'#15a07f',tl3:'#0d7a60',
+        bg:'#050f0c',bg2:'#091410',bg3:'#0d1c18',bg4:'#122720',
+        tx:'#e8f5f1',tx2:'#9bbdb5',tx3:'#5a8078',
+      },
+      fontFamily: {
+        serif:['"DM Serif Display"','serif'],
+        sans:['"Plus Jakarta Sans"','sans-serif'],
+      },
+    }
+  }
+}
+</script>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
+.glass{background:rgba(13,28,24,.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(29,184,150,.18)}
+.hcard-wrap:hover .hcard-photo{transform:scale(1.05)}
+.hcard-photo{transition:transform .4s;width:100%;height:100%;object-fit:cover;display:block}
+</style>
+</head>
+<body class="bg-bg min-h-screen text-tx overflow-x-hidden">
+<div class="relative z-10 flex flex-col min-h-screen">
+  <header class="glass sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 lg:py-4">
+    <div class="flex items-center gap-2 cursor-pointer flex-shrink-0" onclick="window.location.href='/'">
+      <svg width="110" height="30" viewBox="0 0 240 60" fill="none">
+        <path d="M44 10 C24 10 8 21 8 35 C8 49 24 56 44 56" stroke="#1db896" stroke-width="7" stroke-linecap="round" fill="none"/>
+        <ellipse cx="9" cy="35" rx="7" ry="9" fill="#1db896"/>
+        <path d="M9 44 L6 53 L9 49 L12 53 Z" fill="#1db896"/>
+        <circle cx="9" cy="33" r="3" fill="#050f0c"/>
+        <rect x="8" y="35.5" width="2" height="4" rx="1" fill="#050f0c"/>
+        <path d="M56 12 L56 48 M56 30 Q63 21 73 30 L73 48" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M82 36 Q82 24 93 24 Q103 24 103 33 L82 33 M82 36 Q82 48 93 48" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+        <path d="M130 28 Q120 20 111 33 Q102 46 114 47 Q122 47 130 40" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+        <path d="M150 24 Q137 24 137 35 Q137 47 150 47 Q163 47 163 35 Q163 28 158 25 M161 44 L170 54" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+        <circle cx="178" cy="18" r="4" fill="#1db896"/>
+        <line x1="178" y1="27" x2="178" y2="48" stroke="#1db896" stroke-width="5.5" stroke-linecap="round"/>
+        <path d="M188 48 L188 27 Q188 27 198 38 Q208 48 208 48 L208 27" stroke="#1db896" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+    </div>
+    <nav class="hidden lg:flex items-center gap-6 text-sm font-semibold text-tx2">
+      <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/'">Главная</span>
+      <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/search'">Найти жильё</span>
+      <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/hotel_swipe'">Свайп</span>
+      <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/travel_streak'">Серия</span>
+    </nav>
+  </header>
+
+  <div class="flex-1 px-4 sm:px-6 lg:px-10 py-8 lg:py-12">
+    <div class="max-w-7xl mx-auto">
+      <div class="mb-8">
+        <button onclick="window.location.href='/'" class="flex items-center gap-1 text-tx2 hover:text-tl transition-colors mb-4 text-sm">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+          Все вайбы
+        </button>
+        <div class="flex items-center gap-4">
+          <div class="w-16 h-16 rounded-2xl bg-white/[.06] border border-white/10 flex items-center justify-center text-4xl">
+            <%= @vibe.icon %>
+          </div>
+          <div>
+            <h1 class="font-serif text-tx" style="font-size:clamp(28px,4vw,42px)"><%= @vibe.display_name %></h1>
+            <p class="text-tx2 mt-1"><%= @vibe.description %></p>
+          </div>
+        </div>
+      </div>
+
+      <% if @hotels.any? %>
+        <div class="flex items-center gap-2 mb-6">
+          <div class="w-2 h-2 rounded-full bg-tl"></div>
+          <span class="text-tx2 text-sm font-semibold"><%= @hotels.count %> <%= pluralize_hotels(@hotels.count) %></span>
+        </div>
+        <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <% @hotels.each do |hotel| %>
+            <div class="hcard-wrap glass rounded-2xl overflow-hidden cursor-pointer" onclick="window.location.href='/hotels/<%= hotel.id %>'">
+              <div class="relative h-48 overflow-hidden">
+                <% if hotel.photos.attached? %>
+                  <%= image_tag hotel.photos.first, class: "hcard-photo", alt: hotel.name %>
+                <% else %>
+                  <div class="w-full h-full bg-bg3 flex items-center justify-center">
+                    <span class="text-tx3 text-4xl">🏨</span>
+                  </div>
+                <% end %>
+                <div class="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full">
+                  <span class="text-white font-bold text-sm">⭐ <%= hotel.average_rating %></span>
+                </div>
+                <div class="absolute bottom-3 left-3">
+                  <% hotel.vibes.each do |v| %>
+                    <span class="inline-block px-2 py-0.5 rounded-full bg-black/50 backdrop-blur-md text-white text-xs mr-1"><%= v.icon %> <%= v.name %></span>
+                  <% end %>
+                </div>
+              </div>
+              <div class="p-4">
+                <h3 class="font-serif text-tx text-lg mb-1"><%= hotel.name %></h3>
+                <p class="text-tx2 text-sm mb-3"><%= hotel.city %>, <%= hotel.hotel_type %></p>
+                <div class="flex items-center justify-between text-sm">
+                  <div>
+                    <span class="text-tx3">❤️ </span>
+                    <span class="text-tx2"><%= hotel.likes_count %></span>
+                    <span class="text-tx3"> хотят сюда</span>
+                  </div>
+                  <div class="text-tl font-bold text-lg"><%= hotel.display_price %> ₽</div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="text-center py-20">
+          <div class="text-6xl mb-4">🔍</div>
+          <h2 class="font-serif text-tx text-2xl mb-2">Пока пусто</h2>
+          <p class="text-tx2 mb-6">Отелей с вайбом «<%= @vibe.display_name %>» пока нет. Загляни позже!</p>
+          <button onclick="window.location.href='/'" class="px-6 py-3 rounded-2xl bg-tl text-bg font-bold hover:bg-tl2 transition-all">
+            На главную
+          </button>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+</body>
+</html>

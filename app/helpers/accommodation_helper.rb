@@ -10,15 +10,23 @@ module AccommodationHelper
   def listing_cover_photo(record)
     return unless record.photos.attached?
 
-    record.photos.find { |photo| photo.blob.content_type.in?(IMAGE_CONTENT_TYPES) } || record.photos.first
+    # Порядок ActiveStorage attachments может отличаться между устройствами/миграциями.
+    # Поэтому выбираем детерминированно и возвращаем ATTACHMENT (а не blob),
+    # чтобы image_tag гарантированно получил корректный URL.
+    attachments = record.photos_attachments
+                         .includes(:blob)
+                         .sort_by { |att| [att.created_at || att.blob.created_at, att.id] }
+
+    allowed = attachments.select { |att| IMAGE_CONTENT_TYPES.include?(att.blob.content_type) }
+    allowed.first || attachments.first
   end
 
   def listing_photo_tag(record, css_class: 'hcard-photo', alt: nil)
-    photo = listing_cover_photo(record)
+    attachment = listing_cover_photo(record)
 
-    if photo
-      image_tag photo, class: css_class, alt: alt || record.name, loading: 'lazy',
-                       style: 'width:100%;height:100%;object-fit:cover;display:block'
+    if attachment
+      image_tag attachment, class: css_class, alt: alt || record.name, loading: 'lazy',
+                            style: 'width:100%;height:100%;object-fit:cover;display:block'
     else
       emoji = record.is_a?(Hotel) ? '🏨' : '🏠'
       content_tag(

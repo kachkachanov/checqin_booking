@@ -3,6 +3,11 @@ class Hotel < ApplicationRecord
   has_many :rooms, dependent: :destroy
   has_many :bookings, dependent: :restrict_with_error
   has_many_attached :photos
+  has_many :hotel_vibes, dependent: :destroy
+  has_many :vibes, through: :hotel_vibes
+  has_many :hotel_likes, dependent: :destroy
+  has_many :hotel_skips, dependent: :destroy
+  has_many :dream_hotels, dependent: :destroy
 
   validates :photos,
             content_type: { in: %w[image/png image/jpeg image/jpg image/pjpeg image/webp],
@@ -40,6 +45,7 @@ class Hotel < ApplicationRecord
       checkin, checkout
     )
   }
+  scope :by_vibe, ->(vibe_name) { joins(:vibes).where(vibes: { name: vibe_name }) if vibe_name.present? }
 
   def full_address
     "#{city}, #{address}"
@@ -83,6 +89,26 @@ class Hotel < ApplicationRecord
 
   def rejected?
     status == 'rejected'
+  end
+
+  def likes_count
+    hotel_likes.count
+  end
+
+  def dream_hotels_count
+    dream_hotels.count
+  end
+
+  def bookings_count_last_month
+    bookings.confirmed.where('check_in >= ?', 1.month.ago).count
+  end
+
+  def popularity_metrics
+    {
+      likes: likes_count,
+      dream_hotels: dream_hotels_count,
+      bookings_last_month: bookings_count_last_month
+    }
   end
 
   private

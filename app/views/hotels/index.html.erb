@@ -120,7 +120,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
     <nav class="hidden lg:flex items-center gap-6 text-sm font-semibold text-tx2">
       <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/'">Главная</span>
       <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/search'">Найти жильё</span>
-      <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/favorites'">Избранное</span>
+      <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/hotel_swipe'">Свайп</span>
+      <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/travel_streak'">Серия</span>
       <% if user_signed_in? %>
         <% if current_user.supervisor? %>
           <span class="hover:text-tl cursor-pointer transition-colors" onclick="window.location.href='/supervisor'">Супервайзор</span>
@@ -218,6 +219,30 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
       </div>
     </div>
 
+    <!-- Vibe Search Section -->
+    <div class="px-4 sm:px-6 lg:px-10 py-8 lg:py-12 bg-bg">
+      <div class="flex items-end justify-between mb-6">
+        <div>
+          <div class="font-bold text-tx mb-1" style="font-size:clamp(18px,2.5vw,26px)">Поиск по вайбу</div>
+          <div class="text-tx3 text-sm">Найди отель под своё настроение</div>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4" id="vibe-cards">
+        <% @vibes.each do |vibe| %>
+          <div onclick="filterByVibe('<%= vibe.name %>')" class="group cursor-pointer rounded-2xl border border-white/10 bg-white/[.04] hover:border-tl hover:bg-tl/10 transition-all overflow-hidden">
+            <div class="p-5 text-center">
+              <div class="text-4xl mb-3 group-hover:scale-110 transition-transform"><%= vibe.icon %></div>
+              <div class="font-bold text-tx text-sm mb-1"><%= vibe.display_name %></div>
+              <div class="text-tx3 text-xs mb-3 leading-relaxed"><%= vibe.description %></div>
+              <div class="inline-block px-3 py-1 rounded-full bg-white/10 text-tx2 text-xs font-semibold">
+                <%= vibe.hotels_count %> <%= pluralize_hotels(vibe.hotels_count) %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
     <% if @listings.any? %>
       <div class="px-4 sm:px-6 lg:px-10 py-8 lg:py-10 bg-bg">
         <div class="flex items-center justify-between mb-4 lg:mb-6">
@@ -256,6 +281,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;margin:0}
 </div>
 <%= render 'shared/smart_panel' %>
 <%= render 'shared/favorite_scripts' %>
+<%= render 'shared/dream_scripts' %>
 <div class="fixed inset-0 z-[300] hidden items-end lg:items-center justify-center" id="cov"
      onclick="if(event.target===this)closeCal()">
   <div class="absolute inset-0 bg-black/70 backdrop-blur-md" onclick="closeCal()"></div>
@@ -432,6 +458,10 @@ document.getElementById('co-txt').textContent=fmtS(S.co);
 document.getElementById('checkin_hidden').value = S.ci.toISOString().split('T')[0];
 document.getElementById('checkout_hidden').value = S.co.toISOString().split('T')[0];
 document.getElementById('guests_hidden').value = S.guests;
+
+function filterByVibe(vibeName) {
+  window.location.href = `/vibes/hotels/${vibeName}`;
+}
 </script>
 </body>
 </html>

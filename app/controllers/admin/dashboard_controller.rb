@@ -7,6 +7,8 @@ class Admin::DashboardController < ApplicationController
   def index
     @hotels = Hotel.review.includes(:user).order(created_at: :desc)
     @properties = Property.review.includes(:user).order(created_at: :desc)
+
+    @moderation_actions = ModerationAction.latest.limit(50).includes(:moderator)
   end
 
   def approve_hotel
@@ -37,6 +39,15 @@ class Admin::DashboardController < ApplicationController
 
   def update_status(record, status, notice)
     record.update!(status: status)
+
+    ModerationAction.create!(
+      moderatable_type: record.class.name,
+      moderatable_id: record.id,
+      action: (status == 'active' ? 'approved' : 'rejected'),
+      moderator: current_user,
+      note: notice
+    )
+
     redirect_to admin_root_path, notice: notice
   end
 end

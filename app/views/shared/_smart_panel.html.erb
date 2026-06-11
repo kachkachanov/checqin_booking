@@ -59,6 +59,22 @@
           <svg class="w-4 h-4 text-tx3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
         <% end %>
 
+        <%= link_to hotel_swipe_index_path, class: "flex items-center justify-between px-5 py-4 border-b border-white/8 hover:bg-tl/5 transition-colors", data: { turbo: false } do %>
+          <div class="flex items-center gap-3.5">
+            <div class="w-10 h-10 rounded-xl bg-tl/10 border border-tl/20 flex items-center justify-center text-tl"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg></div>
+            <span class="text-sm font-semibold text-tx">Свайп отелей</span>
+          </div>
+          <svg class="w-4 h-4 text-tx3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        <% end %>
+
+        <%= link_to travel_streak_path, class: "flex items-center justify-between px-5 py-4 border-b border-white/8 hover:bg-tl/5 transition-colors", data: { turbo: false } do %>
+          <div class="flex items-center gap-3.5">
+            <div class="w-10 h-10 rounded-xl bg-tl/10 border border-tl/20 flex items-center justify-center text-tl"><svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div>
+            <span class="text-sm font-semibold text-tx">Серия путешествий</span>
+          </div>
+          <svg class="w-4 h-4 text-tx3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        <% end %>
+
         <% if user_signed_in? %>
           <%= link_to bookings_path, class: "flex items-center justify-between px-5 py-4 border-b border-white/8 hover:bg-tl/5 transition-colors", data: { turbo: false } do %>
             <div class="flex items-center gap-3.5">

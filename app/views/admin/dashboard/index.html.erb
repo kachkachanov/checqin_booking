@@ -34,6 +34,55 @@
       <div class="mb-6 rounded-2xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-200"><%= alert %></div>
     <% end %>
 
+    <div class="mt-8 mb-6">
+      <section class="rounded-3xl border border-white/10 bg-white/5 p-5">
+        <div class="flex items-center justify-between mb-5 gap-4">
+          <h2 class="text-2xl" style="font-family:'DM Serif Display',serif">История одобрений и отказов</h2>
+          <span class="text-sm text-[#9bbdb5]"><%= @moderation_actions.size %> записей</span>
+        </div>
+
+        <% if @moderation_actions.any? %>
+          <div class="space-y-3">
+            <% @moderation_actions.each do |action| %>
+              <% object = action.moderatable %>
+              <div class="rounded-2xl border border-white/10 bg-[#091410] p-4">
+                <div class="flex items-start justify-between gap-4">
+                  <div>
+                    <div class="text-sm text-[#9bbdb5]">
+                      <%= object.class.name %>
+                      · <%= object.try(:city) || '-' %>
+                    </div>
+                    <div class="font-semibold text-lg"><%= object.try(:name) || "ID #{action.moderatable_id}" %></div>
+                    <% if action.note.present? %>
+                      <div class="text-xs text-[#5a8078] mt-2"><%= action.note %></div>
+                    <% end %>
+                  </div>
+                  <div class="text-right flex-shrink-0">
+                    <div class="inline-flex items-center gap-2">
+                      <% badge_bg = action.action == 'approved' ? 'background:rgba(29,184,150,.15);color:#1db896' : 'background:rgba(242,79,107,.15);color:#f87171' %>
+                      <span style="padding:3px 10px;border-radius:20px;font-size:10px;font-weight:800;<%= badge_bg %>">
+                        <%= action.action == 'approved' ? 'Одобрено' : 'Отклонено' %>
+                      </span>
+                    </div>
+                    <div class="text-xs text-[#9bbdb5] mt-2">
+                      Модератор: <span class="text-[#e8f5f1] font-semibold"><%= action.moderator&.email %></span>
+                    </div>
+                    <div class="text-xs text-[#9bbdb5] mt-1">
+                      <%= l(action.created_at, format: '%d.%m.%Y %H:%M') %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="rounded-2xl border border-dashed border-white/10 bg-[#091410] p-6 text-sm text-[#9bbdb5]">
+            Пока нет записей по модерации.
+          </div>
+        <% end %>
+      </section>
+    </div>
+
     <div class="grid lg:grid-cols-2 gap-6">
       <section class="rounded-3xl border border-white/10 bg-white/5 p-5">
         <div class="flex items-center justify-between mb-5">

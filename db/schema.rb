@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_05_24_120000) do
+ActiveRecord::Schema[7.1].define(version: 2026_06_11_132857) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -62,6 +62,16 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_24_120000) do
     t.index ["user_id"], name: "index_bookings_on_user_id"
   end
 
+  create_table "dream_hotels", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "hotel_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["hotel_id"], name: "index_dream_hotels_on_hotel_id"
+    t.index ["user_id", "hotel_id"], name: "index_dream_hotels_on_user_id_and_hotel_id", unique: true
+    t.index ["user_id"], name: "index_dream_hotels_on_user_id"
+  end
+
   create_table "favorites", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "hotel_id", null: false
@@ -69,6 +79,36 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_24_120000) do
     t.datetime "updated_at", null: false
     t.index ["hotel_id"], name: "index_favorites_on_hotel_id"
     t.index ["user_id"], name: "index_favorites_on_user_id"
+  end
+
+  create_table "hotel_likes", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "hotel_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["hotel_id"], name: "index_hotel_likes_on_hotel_id"
+    t.index ["user_id", "hotel_id"], name: "index_hotel_likes_on_user_id_and_hotel_id", unique: true
+    t.index ["user_id"], name: "index_hotel_likes_on_user_id"
+  end
+
+  create_table "hotel_skips", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "hotel_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["hotel_id"], name: "index_hotel_skips_on_hotel_id"
+    t.index ["user_id", "hotel_id"], name: "index_hotel_skips_on_user_id_and_hotel_id", unique: true
+    t.index ["user_id"], name: "index_hotel_skips_on_user_id"
+  end
+
+  create_table "hotel_vibes", force: :cascade do |t|
+    t.bigint "hotel_id", null: false
+    t.bigint "vibe_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["hotel_id", "vibe_id"], name: "index_hotel_vibes_on_hotel_id_and_vibe_id", unique: true
+    t.index ["hotel_id"], name: "index_hotel_vibes_on_hotel_id"
+    t.index ["vibe_id"], name: "index_hotel_vibes_on_vibe_id"
   end
 
   create_table "hotels", force: :cascade do |t|
@@ -90,6 +130,19 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_24_120000) do
     t.date "available_to"
     t.index ["status"], name: "index_hotels_on_status"
     t.index ["user_id"], name: "index_hotels_on_user_id"
+  end
+
+  create_table "moderation_actions", force: :cascade do |t|
+    t.string "action", null: false
+    t.text "note"
+    t.bigint "moderator_id", null: false
+    t.string "moderatable_type", null: false
+    t.bigint "moderatable_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["moderatable_type", "moderatable_id"], name: "idx_on_moderatable_type_moderatable_id_d2ae146f7d"
+    t.index ["moderator_id", "created_at"], name: "index_moderation_actions_on_moderator_id_and_created_at"
+    t.index ["moderator_id"], name: "index_moderation_actions_on_moderator_id"
   end
 
   create_table "properties", force: :cascade do |t|
@@ -144,14 +197,32 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_24_120000) do
     t.index ["role"], name: "index_users_on_role"
   end
 
+  create_table "vibes", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "icon", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.text "description"
+    t.index ["name"], name: "index_vibes_on_name", unique: true
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "bookings", "hotels"
   add_foreign_key "bookings", "rooms"
   add_foreign_key "bookings", "users"
+  add_foreign_key "dream_hotels", "hotels"
+  add_foreign_key "dream_hotels", "users"
   add_foreign_key "favorites", "hotels"
   add_foreign_key "favorites", "users"
+  add_foreign_key "hotel_likes", "hotels"
+  add_foreign_key "hotel_likes", "users"
+  add_foreign_key "hotel_skips", "hotels"
+  add_foreign_key "hotel_skips", "users"
+  add_foreign_key "hotel_vibes", "hotels"
+  add_foreign_key "hotel_vibes", "vibes"
   add_foreign_key "hotels", "users"
+  add_foreign_key "moderation_actions", "users", column: "moderator_id"
   add_foreign_key "properties", "users"
   add_foreign_key "rooms", "hotels"
 end

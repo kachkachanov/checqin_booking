@@ -1,0 +1,37 @@
+<script>
+async function toggleDream(hotelId) {
+  const btn = document.getElementById('dream-btn-' + hotelId);
+  if (!btn) return;
+  const isDream = btn.textContent.trim().includes('★') || btn.title?.includes('Убрать');
+  const token = document.querySelector('meta[name="csrf-token"]')?.content;
+
+  try {
+    if (isDream) {
+      const resp = await fetch('/dream_hotels/' + hotelId, {
+        method: 'DELETE',
+        headers: { 'X-CSRF-Token': token, 'Accept': 'application/json' }
+      });
+      if (resp.ok) {
+        btn.textContent = '☆';
+        btn.title = 'В места мечты';
+        btn.style.background = 'rgba(5,15,12,.75)';
+        if (typeof showFavToast === 'function') showFavToast('Удалено из мест мечты');
+      }
+    } else {
+      const resp = await fetch('/dream_hotels', {
+        method: 'POST',
+        headers: { 'X-CSRF-Token': token, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ hotel_id: hotelId })
+      });
+      if (resp.ok) {
+        btn.textContent = '★';
+        btn.title = 'Убрать из мест мечты';
+        btn.style.background = 'rgba(29,184,150,.4)';
+        if (typeof showFavToast === 'function') showFavToast('Добавлено в места мечты');
+      }
+    }
+  } catch (e) {
+    console.error('Dream toggle error:', e);
+  }
+}
+</script>
